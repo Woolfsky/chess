@@ -1,1 +1,1 @@
-Creating a chess application in Java from scratch
+Building out an open source chess application in Java

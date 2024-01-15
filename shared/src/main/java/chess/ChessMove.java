@@ -7,9 +7,11 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessMove {
+    ChessPosition endPosition;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
+        this.endPosition = endPosition;
     }
 
     /**
@@ -34,5 +36,9 @@ public class ChessMove {
      */
     public ChessPiece.PieceType getPromotionPiece() {
         throw new RuntimeException("Not implemented");
+    }
+
+    public String toString() {
+        return "EndSpot[" + this.endPosition.getRow() + "," + this.endPosition.getColumn() + "]";
     }
 }

@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Represents a single chess piece
@@ -52,7 +53,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
+        HashSet moves = new HashSet<>();
         var my_row = myPosition.getRow();
         var my_col = myPosition.getColumn();
 
@@ -72,7 +73,37 @@ public class ChessPiece {
             }
 
             // top right direction
-            
+            temp_row = my_row;
+            temp_col = my_col;
+            while (temp_row < 8 && temp_col < 8) {
+                ChessPosition new_position = new ChessPosition(temp_row + 1, temp_col + 1);
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_row ++;
+                temp_col ++;
+            }
+
+            // bottom left direction
+            temp_row = my_row;
+            temp_col = my_col;
+            while (temp_row > 1 && temp_col > 1) {
+                ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col - 1);
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_row --;
+                temp_col --;
+            }
+
+            // bottom right direction
+            temp_row = my_row;
+            temp_col = my_col;
+            while (temp_row > 1 && temp_col < 8) {
+                ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col + 1);
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_row --;
+                temp_col ++;
+            }
 
         }
 

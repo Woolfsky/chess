@@ -63,6 +63,13 @@ public class ChessPiece {
         return false;
     }
 
+    public boolean isPiece(ChessPosition new_position, ChessBoard board) {
+        if (board.getPiece(new_position) == null) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -443,6 +450,93 @@ public class ChessPiece {
                     }
                 }
             }
+
+        }
+
+        if (this.type == PieceType.ROOK) {
+            int temp_row;
+            int temp_col;
+
+            // move up
+            temp_row = this_row + 1;
+            temp_col = this_col;
+            while (inBounds(temp_row, temp_col)) {
+                ChessPosition new_position = new ChessPosition(temp_row, temp_col);
+                if (isPiece(new_position, board)) {
+                    // is the piece an enemy?
+                    if (!friendlyPiece(new_position, board)) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_row ++;
+            }
+
+            // move left
+            temp_row = this_row;
+            temp_col = this_col - 1;
+            while (inBounds(temp_row, temp_col)) {
+                ChessPosition new_position = new ChessPosition(temp_row, temp_col);
+                if (isPiece(new_position, board)) {
+                    // is the piece an enemy?
+                    if (!friendlyPiece(new_position, board)) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_col --;
+            }
+
+            // move right
+            temp_row = this_row;
+            temp_col = this_col + 1;
+            while (inBounds(temp_row, temp_col)) {
+                ChessPosition new_position = new ChessPosition(temp_row, temp_col);
+                if (isPiece(new_position, board)) {
+                    // is the piece an enemy?
+                    if (!friendlyPiece(new_position, board)) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_col ++;
+            }
+
+            // move down
+            temp_row = this_row - 1;
+            temp_col = this_col;
+            while (inBounds(temp_row, temp_col)) {
+                ChessPosition new_position = new ChessPosition(temp_row, temp_col);
+                if (isPiece(new_position, board)) {
+                    // is the piece an enemy?
+                    if (!friendlyPiece(new_position, board)) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+                ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                moves.add(new_move);
+                temp_row --;
+            }
+
 
         }
 

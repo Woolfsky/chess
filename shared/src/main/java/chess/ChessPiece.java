@@ -45,6 +45,24 @@ public class ChessPiece {
         return this.type;
     }
 
+    public boolean inBounds(int row, int col) {
+        if (row > 0 && row < 9 && col > 0 && col < 9) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean friendlyPiece(ChessPosition new_position, ChessBoard board) {
+        if (board.getPiece(new_position) == null) {
+            return false;
+        } else {
+            if (board.getPiece(new_position).getTeamColor() == this.getTeamColor()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -254,7 +272,85 @@ public class ChessPiece {
 
         }
 
+        if (this.type == PieceType.KNIGHT) {
+            // up two, one left
+            if (inBounds(this_row + 2, this_col - 1)) {
+                ChessPosition new_position = new ChessPosition(this_row + 2, this_col - 1);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // up two, one right
+            if (inBounds(this_row + 2, this_col + 1)) {
+                ChessPosition new_position = new ChessPosition(this_row + 2, this_col + 1);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two left, one up
+            if (inBounds(this_row + 1, this_col - 2)) {
+                ChessPosition new_position = new ChessPosition(this_row + 1, this_col - 2);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two left, one down
+            if (inBounds(this_row - 1, this_col - 2)) {
+                ChessPosition new_position = new ChessPosition(this_row - 1, this_col - 2);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two down, one left
+            if (inBounds(this_row - 2, this_col - 1)) {
+                ChessPosition new_position = new ChessPosition(this_row - 2, this_col - 1);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two down, one right
+            if (inBounds(this_row - 2, this_col + 1)) {
+                ChessPosition new_position = new ChessPosition(this_row - 2, this_col + 1);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two right, one down
+            if (inBounds(this_row - 1, this_col + 2)) {
+                ChessPosition new_position = new ChessPosition(this_row - 1, this_col + 2);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+            // two right, one up
+            if (inBounds(this_row + 1, this_col + 2)) {
+                ChessPosition new_position = new ChessPosition(this_row + 1, this_col + 2);
+                if (!friendlyPiece(new_position, board)) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                }
+            }
+
+
+
+
+
+        }
+
         return moves;
     }
-
 }

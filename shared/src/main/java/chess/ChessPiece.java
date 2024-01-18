@@ -344,10 +344,105 @@ public class ChessPiece {
                     moves.add(new_move);
                 }
             }
+        }
 
+        if (this.type == PieceType.PAWN) {
+            // white pawn moves
+            if (this.pieceColor == ChessGame.TeamColor.WHITE) {
+                // normal move forward
+                if (inBounds(this_row + 1, this_col)) {
+                    ChessPosition new_position = new ChessPosition(this_row + 1, this_col);
+                    if (board.getPiece(new_position) == null) {
+                        // there's no piece in front of the pawn
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+                // up left kill
+                if (inBounds(this_row + 1, this_col - 1)) {
+                    ChessPosition new_position = new ChessPosition(this_row + 1, this_col - 1);
+                    if (board.getPiece(new_position) != null) {
+                        // there is a piece there
+                        if (!friendlyPiece(new_position, board)) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
 
+                // up right kill
+                if (inBounds(this_row + 1, this_col + 1)) {
+                    ChessPosition new_position = new ChessPosition(this_row + 1, this_col + 1);
+                    if (board.getPiece(new_position) != null) {
+                        // there is a piece there
+                        if (!friendlyPiece(new_position, board)) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
 
+                // original pawn move (2 spaces)
+                if (this_row == 2) {
+                    ChessPosition new_position = new ChessPosition(this_row + 2, this_col);
+                    if (board.getPiece(new_position) == null) {
+                        // there's no piece 2 spaces in front of the pawn
+                        ChessPosition block_position = new ChessPosition(this_row + 1, this_col);
+                        if (board.getPiece(block_position) == null) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
 
+            } else {
+                // black pawn moves
+                // normal move forward
+                if (inBounds(this_row - 1, this_col)) {
+                    ChessPosition new_position = new ChessPosition(this_row - 1, this_col);
+                    if (board.getPiece(new_position) == null) {
+                        // there's no piece in front of the pawn
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+                // down left kill
+                if (inBounds(this_row - 1, this_col - 1)) {
+                    ChessPosition new_position = new ChessPosition(this_row - 1, this_col - 1);
+                    if (board.getPiece(new_position) != null) {
+                        // there is a piece there
+                        if (!friendlyPiece(new_position, board)) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
+
+                // down right kill
+                if (inBounds(this_row - 1, this_col + 1)) {
+                    ChessPosition new_position = new ChessPosition(this_row - 1, this_col + 1);
+                    if (board.getPiece(new_position) != null) {
+                        // there is a piece there
+                        if (!friendlyPiece(new_position, board)) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
+
+                // original pawn move (2 spaces)
+                if (this_row == 7) {
+                    ChessPosition new_position = new ChessPosition(this_row - 2, this_col);
+                    if (board.getPiece(new_position) == null) {
+                        // there's no piece 2 spaces in front of the pawn
+                        ChessPosition block_position = new ChessPosition(this_row - 1, this_col);
+                        if (board.getPiece(block_position) == null) {
+                            ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                            moves.add(new_move);
+                        }
+                    }
+                }
+            }
 
         }
 

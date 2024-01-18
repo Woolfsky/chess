@@ -66,6 +66,16 @@ public class ChessPiece {
             temp_col = my_col;
             while (temp_row < 8 && temp_col > 1) {
                 ChessPosition new_position = new ChessPosition(temp_row + 1, temp_col - 1);
+                // check if a piece is there, if so then see if it's on my team
+                if (board.getPiece(new_position) != null) {
+                    if (board.getPiece(new_position).getTeamColor() == this.getTeamColor()) {
+                        break;
+                    } else {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    }
+                }
                 ChessMove new_move = new ChessMove(myPosition, new_position, null);
                 moves.add(new_move);
                 temp_row ++;
@@ -77,6 +87,16 @@ public class ChessPiece {
             temp_col = my_col;
             while (temp_row < 8 && temp_col < 8) {
                 ChessPosition new_position = new ChessPosition(temp_row + 1, temp_col + 1);
+                // check if a piece is there, if so then see if it's on my team
+                if (board.getPiece(new_position) != null) {
+                    if (board.getPiece(new_position).getTeamColor() == this.getTeamColor()) {
+                        break;
+                    } else {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    }
+                }
                 ChessMove new_move = new ChessMove(myPosition, new_position, null);
                 moves.add(new_move);
                 temp_row ++;
@@ -88,6 +108,16 @@ public class ChessPiece {
             temp_col = my_col;
             while (temp_row > 1 && temp_col > 1) {
                 ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col - 1);
+                // check if a piece is there, if so then see if it's on my team
+                if (board.getPiece(new_position) != null) {
+                    if (board.getPiece(new_position).getTeamColor() == this.getTeamColor()) {
+                        break;
+                    } else {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    }
+                }
                 ChessMove new_move = new ChessMove(myPosition, new_position, null);
                 moves.add(new_move);
                 temp_row --;
@@ -99,6 +129,16 @@ public class ChessPiece {
             temp_col = my_col;
             while (temp_row > 1 && temp_col < 8) {
                 ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col + 1);
+                // check if a piece is there, if so then see if it's on my team
+                if (board.getPiece(new_position) != null) {
+                    if (board.getPiece(new_position).getTeamColor() == this.getTeamColor()) {
+                        break;
+                    } else {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                        break;
+                    }
+                }
                 ChessMove new_move = new ChessMove(myPosition, new_position, null);
                 moves.add(new_move);
                 temp_row --;

@@ -35,7 +35,7 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         var row = position.getRow();
         var col = position.getColumn();
-        return spaces[row][col];
+        try { return spaces[row][col]; } catch (ArrayIndexOutOfBoundsException a) { return null; }
     }
 
     /**

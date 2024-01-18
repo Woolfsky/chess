@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -49,11 +50,9 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPosition position = new ChessPosition(startPosition.getRow(), startPosition.getColumn());
-        ChessPiece piece = board.getPiece(position); // put in a check here to return NULL if position is empty
-        Collection<ChessMove> all_moves = piece.pieceMoves(board, position);
-//        for (int i = 0; i < all_moves.size(); i++) {
-//            if (board.getPiece())
-//        }
+        ChessPiece thisPiece = board.getPiece(position);
+        if (thisPiece == null) { return null; }
+        Collection<ChessMove> all_moves = thisPiece.pieceMoves(board, position);
         return all_moves;
     }
 

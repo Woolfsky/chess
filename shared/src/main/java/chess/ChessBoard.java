@@ -22,7 +22,7 @@ public class ChessBoard {
     public void addPiece(ChessPosition position, ChessPiece piece) {
         var row = position.getRow();
         var col = position.getColumn();
-        spaces[row][col] = piece;
+        spaces[row-1][col-1] = piece;
     }
 
     /**
@@ -35,7 +35,7 @@ public class ChessBoard {
     public ChessPiece getPiece(ChessPosition position) {
         var row = position.getRow();
         var col = position.getColumn();
-        try { return spaces[row][col]; } catch (ArrayIndexOutOfBoundsException a) { return null; }
+        try { return spaces[row-1][col-1]; } catch (ArrayIndexOutOfBoundsException a) { return null; }
     }
 
     /**

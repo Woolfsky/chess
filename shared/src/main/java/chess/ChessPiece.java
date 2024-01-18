@@ -54,16 +54,16 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet moves = new HashSet<>();
-        var my_row = myPosition.getRow();
-        var my_col = myPosition.getColumn();
+        var this_row = myPosition.getRow();
+        var this_col = myPosition.getColumn();
 
         if (this.type == PieceType.BISHOP) {
             int temp_row;
             int temp_col;
 
             // top left direction
-            temp_row = my_row;
-            temp_col = my_col;
+            temp_row = this_row;
+            temp_col = this_col;
             while (temp_row < 8 && temp_col > 1) {
                 ChessPosition new_position = new ChessPosition(temp_row + 1, temp_col - 1);
                 // check if a piece is there, if so then see if it's on my team
@@ -83,8 +83,8 @@ public class ChessPiece {
             }
 
             // top right direction
-            temp_row = my_row;
-            temp_col = my_col;
+            temp_row = this_row;
+            temp_col = this_col;
             while (temp_row < 8 && temp_col < 8) {
                 ChessPosition new_position = new ChessPosition(temp_row + 1, temp_col + 1);
                 // check if a piece is there, if so then see if it's on my team
@@ -104,8 +104,8 @@ public class ChessPiece {
             }
 
             // bottom left direction
-            temp_row = my_row;
-            temp_col = my_col;
+            temp_row = this_row;
+            temp_col = this_col;
             while (temp_row > 1 && temp_col > 1) {
                 ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col - 1);
                 // check if a piece is there, if so then see if it's on my team
@@ -125,8 +125,8 @@ public class ChessPiece {
             }
 
             // bottom right direction
-            temp_row = my_row;
-            temp_col = my_col;
+            temp_row = this_row;
+            temp_col = this_col;
             while (temp_row > 1 && temp_col < 8) {
                 ChessPosition new_position = new ChessPosition(temp_row - 1, temp_col + 1);
                 // check if a piece is there, if so then see if it's on my team
@@ -144,9 +144,117 @@ public class ChessPiece {
                 temp_row --;
                 temp_col ++;
             }
+        }
+
+        if (this.type == PieceType.KING) {
+            // move down
+            if (this_row > 1) {
+                ChessPosition new_position = new ChessPosition(this_row - 1, this_col);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move down and left
+            if (this_row > 1 && this_col > 1) {
+                ChessPosition new_position = new ChessPosition(this_row - 1, this_col - 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move down and right
+            if (this_row > 1 && this_col < 8) {
+                ChessPosition new_position = new ChessPosition(this_row - 1, this_col + 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move left
+            if (this_col > 1) {
+                ChessPosition new_position = new ChessPosition(this_row, this_col - 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move right
+            if (this_col < 8) {
+                ChessPosition new_position = new ChessPosition(this_row, this_col + 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move up and left
+            if (this_row < 8 && this_col > 1) {
+                ChessPosition new_position = new ChessPosition(this_row + 1, this_col - 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move up
+            if (this_row < 8) {
+                ChessPosition new_position = new ChessPosition(this_row + 1, this_col);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
+            // move up and right
+            if (this_row < 8 && this_col < 8) {
+                ChessPosition new_position = new ChessPosition(this_row + 1, this_col + 1);
+                if (board.getPiece(new_position) == null) {
+                    ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                    moves.add(new_move);
+                } else {
+                    if (board.getPiece(new_position).getTeamColor() != this.getTeamColor()) {
+                        ChessMove new_move = new ChessMove(myPosition, new_position, null);
+                        moves.add(new_move);
+                    }
+                }
+            }
 
         }
 
         return moves;
     }
+
 }

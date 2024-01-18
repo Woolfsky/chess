@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -19,6 +20,19 @@ public class ChessPiece {
         this.type = type;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
     /**
      * The various different chess piece options
      */
@@ -29,6 +43,48 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
+    }
+
+    @Override
+    public String toString() {
+        if (this.type == PieceType.PAWN && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "P";
+        }
+        if (this.type == PieceType.PAWN && this.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            return "p";
+        }
+        if (this.type == PieceType.ROOK && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "R";
+        }
+        if (this.type == PieceType.ROOK && this.getTeamColor() == ChessGame.TeamColor.BLACK) {
+            return "r";
+        }
+        if (this.type == PieceType.KNIGHT && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "N";
+        }
+        if (this.type == PieceType.KNIGHT && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "n";
+        }
+        if (this.type == PieceType.BISHOP && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "B";
+        }
+        if (this.type == PieceType.BISHOP && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "b";
+        }
+        if (this.type == PieceType.QUEEN && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "Q";
+        }
+        if (this.type == PieceType.QUEEN && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "q";
+        }
+        if (this.type == PieceType.KING && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "K";
+        }
+        if (this.type == PieceType.KING && this.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return "k";
+        }
+
+        return " ";
     }
 
     /**

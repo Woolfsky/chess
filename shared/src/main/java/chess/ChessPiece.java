@@ -82,7 +82,7 @@ public class ChessPiece {
         var this_row = myPosition.getRow();
         var this_col = myPosition.getColumn();
 
-        if (this.type == PieceType.BISHOP) {
+        if (this.type == PieceType.BISHOP || this.type == PieceType.QUEEN) {
             int temp_row;
             int temp_col;
 
@@ -453,7 +453,7 @@ public class ChessPiece {
 
         }
 
-        if (this.type == PieceType.ROOK) {
+        if (this.type == PieceType.ROOK || this.type == PieceType.QUEEN) {
             int temp_row;
             int temp_col;
 

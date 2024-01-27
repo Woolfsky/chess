@@ -9,9 +9,9 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessMove {
-    ChessPosition endPosition;
-    ChessPosition startPosition;
-    ChessPiece.PieceType promotionPiece;
+    public ChessPosition startPosition;
+    public ChessPosition endPosition;
+    public ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -21,16 +21,30 @@ public class ChessMove {
     }
 
     @Override
+    public String toString() {
+        return "MoveTo[" + this.endPosition.getRow() + "][" + this.endPosition.getColumn() + "]";
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ChessMove chessMove = (ChessMove) o;
-        return Objects.equals(endPosition, chessMove.endPosition) && Objects.equals(startPosition, chessMove.startPosition) && promotionPiece == chessMove.promotionPiece;
+
+        if (!Objects.equals(startPosition, chessMove.startPosition))
+            return false;
+        if (!Objects.equals(endPosition, chessMove.endPosition))
+            return false;
+        return promotionPiece == chessMove.promotionPiece;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(endPosition, startPosition, promotionPiece);
+        int result = startPosition != null ? startPosition.hashCode() : 0;
+        result = 31 * result + (endPosition != null ? endPosition.hashCode() : 0);
+        result = 31 * result + (promotionPiece != null ? promotionPiece.hashCode() : 0);
+        return result;
     }
 
     /**
@@ -54,10 +68,6 @@ public class ChessMove {
      * @return Type of piece to promote a pawn to, or null if no promotion
      */
     public ChessPiece.PieceType getPromotionPiece() {
-        return promotionPiece;
-    }
-
-    public String toString() {
-        return "EndSpot[" + this.endPosition.getRow() + "," + this.endPosition.getColumn() + "]";
+        return this.promotionPiece;
     }
 }

@@ -9,10 +9,10 @@ import java.util.Arrays;
  * signature of the existing methods.
  */
 public class ChessBoard {
+    public ChessPiece[][] squares = new ChessPiece[8][8];
 
-    private ChessPiece[][] spaces = new ChessPiece[8][8];
     public ChessBoard() {
-        
+
     }
 
     /**
@@ -22,9 +22,24 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        var row = position.getRow();
-        var col = position.getColumn();
-        spaces[row-1][col-1] = piece;
+        int row = position.getRow();
+        int col = position.getColumn();
+        squares[row-1][col-1] = piece;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ChessBoard that = (ChessBoard) o;
+
+        return Arrays.deepEquals(squares, that.squares);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(squares);
     }
 
     /**
@@ -35,37 +50,9 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        var row = position.getRow();
-        var col = position.getColumn();
-        try { return spaces[row-1][col-1]; } catch (ArrayIndexOutOfBoundsException a) { return null; }
-    }
-
-    @Override
-    public String toString() {
-        String output = "";
-        for (int i = 8; i > 0; i--) {
-            for (int j = 9; j > 0; j--) {
-                output += "|";
-                ChessPosition pos = new ChessPosition(i, j);
-                try {output += getPiece(pos).toString();} catch (Exception e) { output += " "; }
-                output += "|";
-            }
-            output += "\n";
-        }
-        return output;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessBoard that = (ChessBoard) o;
-        return Arrays.deepEquals(spaces, that.spaces);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(spaces);
+        int row = position.getRow();
+        int col = position.getColumn();
+        return squares[row-1][col-1];
     }
 
     /**
@@ -73,7 +60,7 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        // white pieces
+        // create pieces
         ChessPiece wPawn1 = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         ChessPiece wPawn2 = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         ChessPiece wPawn3 = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
@@ -91,7 +78,6 @@ public class ChessBoard {
         ChessPiece wQueen = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
         ChessPiece wKing = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
 
-        // black pieces
         ChessPiece bPawn1 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         ChessPiece bPawn2 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         ChessPiece bPawn3 = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
@@ -109,49 +95,41 @@ public class ChessBoard {
         ChessPiece bQueen = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
         ChessPiece bKing = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
 
-        // place white pieces
-        this.addPiece(new ChessPosition(2, 1), wPawn1);
-        this.addPiece(new ChessPosition(2, 2), wPawn2);
-        this.addPiece(new ChessPosition(2, 3), wPawn3);
-        this.addPiece(new ChessPosition(2, 4), wPawn4);
-        this.addPiece(new ChessPosition(2, 5), wPawn5);
-        this.addPiece(new ChessPosition(2, 6), wPawn6);
-        this.addPiece(new ChessPosition(2, 7), wPawn7);
-        this.addPiece(new ChessPosition(2, 8), wPawn8);
+        // add pieces
+        this.addPiece(new ChessPosition(1,1), wRook1);
+        this.addPiece(new ChessPosition(1,2), wKnight1);
+        this.addPiece(new ChessPosition(1,3), wBishop1);
+        this.addPiece(new ChessPosition(1,4), wQueen);
+        this.addPiece(new ChessPosition(1,5), wKing);
+        this.addPiece(new ChessPosition(1,6), wBishop2);
+        this.addPiece(new ChessPosition(1,7), wKnight2);
+        this.addPiece(new ChessPosition(1,8), wRook2);
 
-        this.addPiece(new ChessPosition(1, 1), wRook1);
-        this.addPiece(new ChessPosition(1, 8), wRook2);
+        this.addPiece(new ChessPosition(2,1), wPawn1);
+        this.addPiece(new ChessPosition(2,2), wPawn2);
+        this.addPiece(new ChessPosition(2,3), wPawn3);
+        this.addPiece(new ChessPosition(2,4), wPawn4);
+        this.addPiece(new ChessPosition(2,5), wPawn5);
+        this.addPiece(new ChessPosition(2,6), wPawn6);
+        this.addPiece(new ChessPosition(2,7), wPawn7);
+        this.addPiece(new ChessPosition(2,8), wPawn8);
 
-        this.addPiece(new ChessPosition(1, 2), wKnight1);
-        this.addPiece(new ChessPosition(1, 7), wKnight2);
+        this.addPiece(new ChessPosition(8,1), bRook1);
+        this.addPiece(new ChessPosition(8,2), bKnight1);
+        this.addPiece(new ChessPosition(8,3), bBishop1);
+        this.addPiece(new ChessPosition(8,4), bQueen);
+        this.addPiece(new ChessPosition(8,5), bKing);
+        this.addPiece(new ChessPosition(8,6), bBishop2);
+        this.addPiece(new ChessPosition(8,7), bKnight2);
+        this.addPiece(new ChessPosition(8,8), bRook2);
 
-        this.addPiece(new ChessPosition(1, 3), wBishop1);
-        this.addPiece(new ChessPosition(1, 6), wBishop2);
-
-        this.addPiece(new ChessPosition(1, 4), wQueen);
-        this.addPiece(new ChessPosition(1, 5), wKing);
-
-        // place black pieces
-        this.addPiece(new ChessPosition(7, 1), bPawn1);
-        this.addPiece(new ChessPosition(7, 2), bPawn2);
-        this.addPiece(new ChessPosition(7, 3), bPawn3);
-        this.addPiece(new ChessPosition(7, 4), bPawn4);
-        this.addPiece(new ChessPosition(7, 5), bPawn5);
-        this.addPiece(new ChessPosition(7, 6), bPawn6);
-        this.addPiece(new ChessPosition(7, 7), bPawn7);
-        this.addPiece(new ChessPosition(7, 8), bPawn8);
-
-        this.addPiece(new ChessPosition(8, 1), bRook1);
-        this.addPiece(new ChessPosition(8, 8), bRook2);
-
-        this.addPiece(new ChessPosition(8, 2), bKnight1);
-        this.addPiece(new ChessPosition(8, 7), bKnight2);
-
-        this.addPiece(new ChessPosition(8, 3), bBishop1);
-        this.addPiece(new ChessPosition(8, 6), bBishop2);
-
-        this.addPiece(new ChessPosition(8, 4), bQueen);
-        this.addPiece(new ChessPosition(8, 5), bKing);
-
+        this.addPiece(new ChessPosition(7,1), bPawn1);
+        this.addPiece(new ChessPosition(7,2), bPawn2);
+        this.addPiece(new ChessPosition(7,3), bPawn3);
+        this.addPiece(new ChessPosition(7,4), bPawn4);
+        this.addPiece(new ChessPosition(7,5), bPawn5);
+        this.addPiece(new ChessPosition(7,6), bPawn6);
+        this.addPiece(new ChessPosition(7,7), bPawn7);
+        this.addPiece(new ChessPosition(7,8), bPawn8);
     }
 }

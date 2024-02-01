@@ -34,6 +34,26 @@ public class ChessBoard {
     }
 
     @Override
+    public String toString() {
+        String o = "\n";
+        for (int i = 7; i > -1; i--) {
+            for (int j = 0; j < 8; j++) {
+
+                o += "|";
+                if (this.squares[i][j] == null) {
+                    o += "  ";
+                } else {
+                    o += this.squares[i][j];
+                }
+
+            }
+            o += "|\n";
+        }
+
+        return o;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

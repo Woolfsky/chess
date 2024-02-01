@@ -49,7 +49,10 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = this.board.getPiece(startPosition);
+        Collection<ChessMove> allMoves = piece.pieceMoves(this.board, startPosition);
+
+        return allMoves;
     }
 
     /**
@@ -65,6 +68,7 @@ public class ChessGame {
 
         // get the piece at the start position
         ChessPiece piece = this.board.getPiece(startPos);
+        if (!piece.pieceMoves(this.board, startPos).contains(move)) { throw new InvalidMoveException("Invalid move"); }
         this.board.removePiece(startPos);
         this.board.removePiece(endPos);
         this.board.addPiece(endPos, piece);

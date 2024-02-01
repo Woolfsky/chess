@@ -99,6 +99,11 @@ public class ChessPiece {
         return moves;
     }
 
+    @Override
+    public String toString() {
+        return String.valueOf(this.team.name().charAt(0)) + String.valueOf(this.type.name().charAt(0));
+    }
+
     public boolean inBounds(int row, int col) {
         if (row > 0 && row < 9 && col > 0 && col < 9) {
             return true;

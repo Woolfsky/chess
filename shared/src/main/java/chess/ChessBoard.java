@@ -27,6 +27,12 @@ public class ChessBoard {
         squares[row-1][col-1] = piece;
     }
 
+    public void removePiece(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        squares[row-1][col-1] = null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

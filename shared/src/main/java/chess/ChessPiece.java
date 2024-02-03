@@ -32,6 +32,27 @@ public class ChessPiece {
         PAWN
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        ChessPiece that = (ChessPiece) o;
+//
+//        if (team != that.team) return false;
+//        if (type != that.type) return false;
+//        return Objects.equals(moves, that.moves);
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = team != null ? team.hashCode() : 0;
+//        result = 31 * result + (type != null ? type.hashCode() : 0);
+//        result = 31 * result + (moves != null ? moves.hashCode() : 0);
+//        return result;
+//    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,15 +61,13 @@ public class ChessPiece {
         ChessPiece that = (ChessPiece) o;
 
         if (team != that.team) return false;
-        if (type != that.type) return false;
-        return Objects.equals(moves, that.moves);
+        return type == that.type;
     }
 
     @Override
     public int hashCode() {
         int result = team != null ? team.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (moves != null ? moves.hashCode() : 0);
         return result;
     }
 
@@ -74,6 +93,8 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+
+        this.moves = new HashSet<>();
 
         if (this.type == PieceType.BISHOP) {
             addBishopMoves(board, myPosition);

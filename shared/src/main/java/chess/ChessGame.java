@@ -52,7 +52,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = this.board.getPiece(startPosition);
         Collection<ChessMove> allMoves = piece.pieceMoves(this.board, startPosition);
-
+        findKing(TeamColor.WHITE);
         return allMoves;
     }
 
@@ -75,6 +75,21 @@ public class ChessGame {
         this.board.addPiece(endPos, piece);
     }
 
+    public ChessPosition findKing(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (this.board.getPiece(pos) != null) {
+                    ChessPiece p = this.board.getPiece(pos);
+                    if (p.getPieceType() == ChessPiece.PieceType.KING && p.getTeamColor() == teamColor) {
+                        return pos;
+                    }
+                }
+            }
+        }
+        throw new RuntimeException("could't find the king and the code got here (findKing method)");
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -82,7 +97,25 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // find the king
+        ChessPosition king_pos = findKing(teamColor);
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (this.board.getPiece(pos) != null && this.board.getPiece(pos).getTeamColor() != teamColor) {
+                    ChessPiece enemy_p = this.board.getPiece(pos);
+                    Collection<ChessMove> enemy_p_moves = enemy_p.pieceMoves(this.board, pos);
+                    for (ChessMove m : enemy_p_moves) {
+                        if (m.getEndPosition().getRow() == king_pos.getRow() && m.getEndPosition().getColumn() == king_pos.getColumn()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

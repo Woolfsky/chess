@@ -18,6 +18,7 @@ public class ChessGame {
         setTeamTurn(TeamColor.WHITE);
     }
 
+
     /**
      * @return Which team's turn it is
      */
@@ -69,7 +70,7 @@ public class ChessGame {
 
         // get the piece at the start position
         ChessPiece piece = this.board.getPiece(startPos);
-        if (!piece.pieceMoves(this.board, startPos).contains(move)) { throw new InvalidMoveException("Invalid move"); }
+        if (!piece.pieceMoves(this.board, startPos).contains(move)) { throw new InvalidMoveException("Invalid move!!!!!"); }
         this.board.removePiece(startPos);
         this.board.removePiece(endPos);
         this.board.addPiece(endPos, piece);
@@ -98,7 +99,7 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         // find the king
-        ChessPosition king_pos = findKing(teamColor);
+        ChessPosition kingPos = findKing(teamColor);
 
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
@@ -107,7 +108,7 @@ public class ChessGame {
                     ChessPiece enemy_p = this.board.getPiece(pos);
                     Collection<ChessMove> enemy_p_moves = enemy_p.pieceMoves(this.board, pos);
                     for (ChessMove m : enemy_p_moves) {
-                        if (m.getEndPosition().getRow() == king_pos.getRow() && m.getEndPosition().getColumn() == king_pos.getColumn()) {
+                        if (m.getEndPosition().getRow() == kingPos.getRow() && m.getEndPosition().getColumn() == kingPos.getColumn()) {
                             return true;
                         }
                     }
@@ -118,6 +119,94 @@ public class ChessGame {
         return false;
     }
 
+    public boolean canKingMoveAndBeSafe(TeamColor teamColor) {
+        ChessPosition kingPos = findKing(teamColor);
+        ChessPiece king = this.board.getPiece(kingPos);
+        Collection<ChessMove> kingMoves = king.pieceMoves(this.board, kingPos);
+        for (ChessMove m : kingMoves) {
+            // go through the King's moves to see if any will NOT result in a check
+            if (this.board.getPiece(m.getEndPosition()) != null) {
+                // there is a piece there to kill
+                ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
+                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
+                if (!isInCheck(teamColor)) {
+                    // it can move and be safe! but better reset the hypothetical move back to how it was before
+                    this.board.addPiece(kingPos, king);
+                    this.board.removePiece(m.getEndPosition());
+                    this.board.addPiece(m.getEndPosition(), killedPiece);
+                    return true;
+                } else {
+                    // dang it, still stuck
+                    this.board.addPiece(kingPos, king);
+                    this.board.removePiece(m.getEndPosition());
+                    this.board.addPiece(m.getEndPosition(), killedPiece);
+                }
+            } else {
+                // that was an empty spot
+                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
+                if (!isInCheck(teamColor)) {
+                    // it can move and be safe! but better reset the hypothetical move back to how it was before
+                    this.board.addPiece(kingPos, king);
+                    this.board.removePiece(m.getEndPosition());
+                    return true;
+                } else {
+                    // dang it, still stuck
+                    this.board.addPiece(kingPos, king);
+                    this.board.removePiece(m.getEndPosition());
+                }
+            }
+        }
+        return false;
+    }
+
+    boolean canFriendlyPieceBlockCheck(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (this.board.getPiece(pos) != null && this.board.getPiece(pos).getTeamColor() == teamColor) {
+                    ChessPiece friendly_p = this.board.getPiece(pos);
+                    Collection<ChessMove> friendly_p_moves = friendly_p.pieceMoves(this.board, pos);
+                    for (ChessMove m : friendly_p_moves) {
+                        // go through the friendly piece's moves to see if any will take the king out of check
+                        if (this.board.getPiece(m.getEndPosition()) != null) {
+                            // there is a piece there to kill
+                            ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
+                            try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
+                            if (!isInCheck(teamColor)) {
+                                // not in checkmate! but better reset the hypothetical move back to how it was before
+                                this.board.addPiece(pos, friendly_p);
+                                this.board.removePiece(m.getEndPosition());
+                                this.board.addPiece(m.getEndPosition(), killedPiece);
+                                return true;
+                            } else {
+                                // dang it, still in checkmate
+                                this.board.addPiece(pos, friendly_p);
+                                this.board.removePiece(m.getEndPosition());
+                                this.board.addPiece(m.getEndPosition(), killedPiece);
+                            }
+                        } else {
+                            // that was an empty spot
+                            try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
+                            if (!isInCheck(teamColor)) {
+                                // not in checkmate! but better reset the hypothetical move back to how it was before
+                                this.board.addPiece(pos, friendly_p);
+                                this.board.removePiece(m.getEndPosition());
+                                return true;
+                            } else {
+                                // dang it, still in checkmate
+                                this.board.addPiece(pos, friendly_p);
+                                this.board.removePiece(m.getEndPosition());
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Determines if the given team is in checkmate
      *
@@ -125,7 +214,16 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // is the king in check?
+        if (!isInCheck(teamColor)) { return false; }
+
+        // check whether the king can simply move out of check
+        if (canKingMoveAndBeSafe(teamColor)) { return false; }
+
+        // check if other pieces can block the check
+        if (canFriendlyPieceBlockCheck(teamColor)) { return false; }
+
+        return true;
     }
 
     /**
@@ -136,7 +234,17 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // first check that the king is not in check
+        if (isInCheck(teamColor)) { return false; }
+
+        // check if any of the king's move will put it in check
+        if (canKingMoveAndBeSafe(teamColor)) { return false; }
+
+        // check if any of the other pieces can block the check
+        if (canFriendlyPieceBlockCheck(teamColor)) { return false; }
+
+        return true;
+
     }
 
     /**

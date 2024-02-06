@@ -61,32 +61,27 @@ public class ChessGame {
             if (this.board.getPiece(m.getEndPosition()) != null) {
                 // there is a piece there to kill
                 ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(piece.getTeamColor())) {
+                try {
+                    setTeamTurn(piece.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(piece.getTeamColor());
                     // not in checkmate! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(startPosition, piece);
                     this.board.removePiece(m.getEndPosition());
                     this.board.addPiece(m.getEndPosition(), killedPiece);
                     validMoves.add(m);
-                } else {
-                    // dang it, still in checkmate
-                    this.board.addPiece(startPosition, piece);
-                    this.board.removePiece(m.getEndPosition());
-                    this.board.addPiece(m.getEndPosition(), killedPiece);
-                }
+                } catch (InvalidMoveException ex) {};
             } else {
                 // that was an empty spot
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(piece.getTeamColor())) {
-                    // not in checkmate! but better reset the hypothetical move back to how it was before
+                try {
+                    setTeamTurn(piece.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(piece.getTeamColor());
+                    // that is a valid move! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(startPosition, piece);
                     this.board.removePiece(m.getEndPosition());
                     validMoves.add(m);
-                } else {
-                    // dang it, still in checkmate
-                    this.board.addPiece(startPosition, piece);
-                    this.board.removePiece(m.getEndPosition());
-                }
+                } catch (InvalidMoveException ex) {};
             }
         }
 
@@ -102,15 +97,62 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition startPos = move.getStartPosition();
+
+        // prevent a wrong turn
+        TeamColor t = this.board.getPiece(startPos).getTeamColor();
+        if (t != this.teamTurn) {
+            throw new InvalidMoveException("Not your turn to move!");
+        }
+
         ChessPosition endPos = move.getEndPosition();
         ChessPiece.PieceType promo = move.getPromotionPiece();
 
         // get the piece at the start position
         ChessPiece piece = this.board.getPiece(startPos);
-        if (!piece.pieceMoves(this.board, startPos).contains(move)) { throw new InvalidMoveException("Invalid move!!!!!"); }
+        if (!piece.pieceMoves(this.board, startPos).contains(move)) { throw new InvalidMoveException("Invalid move"); }
         this.board.removePiece(startPos);
+        ChessPiece backup = this.board.getPiece(endPos); // in case you need to replace it for an invalid move
         this.board.removePiece(endPos);
         this.board.addPiece(endPos, piece);
+
+        // see if that move put/left your king in check
+        if (isKing(t) && isInCheck(t)) {
+            // undo that move and throw an error
+            this.board.addPiece(startPos, piece);
+            this.board.addPiece(endPos, backup);
+            throw new InvalidMoveException("That move puts/leaves your king in check!");
+        }
+
+        // promote pawn if needed
+        // WHITE pawns
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getEndPosition().getRow() == 8) {
+            this.board.addPiece(move.getEndPosition(), new ChessPiece(TeamColor.WHITE, promo));
+        }
+        // BLACK pawns
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getEndPosition().getRow() == 1) {
+            this.board.addPiece(move.getEndPosition(), new ChessPiece(TeamColor.BLACK, promo));
+        }
+
+        if (t == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        } else {
+            setTeamTurn(TeamColor.WHITE);
+        }
+    }
+
+    public boolean isKing(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition pos = new ChessPosition(i, j);
+                if (this.board.getPiece(pos) != null) {
+                    ChessPiece p = this.board.getPiece(pos);
+                    if (p.getPieceType() == ChessPiece.PieceType.KING && p.getTeamColor() == teamColor) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public ChessPosition findKing(TeamColor teamColor) {
@@ -165,32 +207,27 @@ public class ChessGame {
             if (this.board.getPiece(m.getEndPosition()) != null) {
                 // there is a piece there to kill
                 ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(teamColor)) {
+                try {
+                    setTeamTurn(king.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(king.getTeamColor());
                     // it can move and be safe! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(kingPos, king);
                     this.board.removePiece(m.getEndPosition());
                     this.board.addPiece(m.getEndPosition(), killedPiece);
                     return true;
-                } else {
-                    // dang it, still stuck
-                    this.board.addPiece(kingPos, king);
-                    this.board.removePiece(m.getEndPosition());
-                    this.board.addPiece(m.getEndPosition(), killedPiece);
-                }
+                } catch (InvalidMoveException ex) {};
             } else {
                 // that was an empty spot
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(teamColor)) {
+                try {
+                    setTeamTurn(king.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(king.getTeamColor());
                     // it can move and be safe! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(kingPos, king);
                     this.board.removePiece(m.getEndPosition());
                     return true;
-                } else {
-                    // dang it, still stuck
-                    this.board.addPiece(kingPos, king);
-                    this.board.removePiece(m.getEndPosition());
-                }
+                } catch (InvalidMoveException ex) {};
             }
         }
         return false;
@@ -204,32 +241,27 @@ public class ChessGame {
             if (this.board.getPiece(m.getEndPosition()) != null) {
                 // there is a piece there to kill
                 ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(teamColor)) {
+                try {
+                    setTeamTurn(friendly_p.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(friendly_p.getTeamColor());
                     // not in checkmate! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(pos, friendly_p);
                     this.board.removePiece(m.getEndPosition());
                     this.board.addPiece(m.getEndPosition(), killedPiece);
                     return true;
-                } else {
-                    // dang it, still in checkmate
-                    this.board.addPiece(pos, friendly_p);
-                    this.board.removePiece(m.getEndPosition());
-                    this.board.addPiece(m.getEndPosition(), killedPiece);
-                }
+                } catch (InvalidMoveException ex) {};
             } else {
                 // that was an empty spot
-                try {this.makeMove(m);} catch (InvalidMoveException ex) {System.out.println(ex);};
-                if (!isInCheck(teamColor)) {
+                try {
+                    setTeamTurn(friendly_p.getTeamColor());
+                    this.makeMove(m);
+                    setTeamTurn(friendly_p.getTeamColor());
                     // not in checkmate! but better reset the hypothetical move back to how it was before
                     this.board.addPiece(pos, friendly_p);
                     this.board.removePiece(m.getEndPosition());
                     return true;
-                } else {
-                    // dang it, still in checkmate
-                    this.board.addPiece(pos, friendly_p);
-                    this.board.removePiece(m.getEndPosition());
-                }
+                } catch (InvalidMoveException ex) {};
             }
         }
         return false;
@@ -282,7 +314,7 @@ public class ChessGame {
         // check if any of the king's move will put it in check
         if (canKingMoveAndBeSafe(teamColor)) { return false; }
 
-        // check if any of the other pieces can block the check
+//        // check if any of the other pieces can block the check
         if (isThereAPieceThatCanBlockCheck(teamColor)) { return false; }
 
         return true;

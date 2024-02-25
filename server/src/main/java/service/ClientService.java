@@ -1,5 +1,7 @@
 package service;
 
+import dataAccess.DataAccess;
+import dataAccess.DataAccessException;
 import model.UserData;
 import model.AuthData;
 
@@ -7,12 +9,38 @@ public class ClientService {
     /*
     ClientService handles methods relating to the individual client: registration, login, and logout
      */
-    public AuthData register(UserData user) {
-        return null;
+    DataAccess dAccess;
+
+    public ClientService(DataAccess dAccess) {
+        this.dAccess = dAccess;
     }
-    public AuthData login(UserData user) {
-        return null;
-    } // these might need to be username and password instead of UserData
+
+    public AuthData register(String username, String password, String email) throws DataAccessException {
+        if (dAccess.getUser(username) == null) {
+            dAccess.createUser(username, password, email);
+            AuthData authData = dAccess.createAuth(username);
+            return authData;
+        } else {
+            throw new DataAccessException("Error: already taken");
+        }
+    }
+
+    public AuthData login(String username, String password) throws DataAccessException {
+        if (dAccess.getUser(username) != null) {
+            UserData userData = dAccess.getUser(username);
+            if (userData.getUsername().equals(username) && userData.getPassword().equals(password)) {
+                AuthData authData = dAccess.createAuth(username);
+                return authData;
+            } else {
+                // password wasn't correct
+                throw new DataAccessException("Error: unauthorized (incorrect password)");
+            }
+        } else {
+            // user wasn't in the system
+            throw new DataAccessException("Error: unauthorized (user not in the system)");
+        }
+    }
+
     public boolean logout(AuthData auth) {
         return false;
     }

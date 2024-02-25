@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.*;
 import server.*;
 import spark.Request;
+import spark.Response;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +16,9 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FirstTest {
 
@@ -30,6 +32,11 @@ public class FirstTest {
         url = new URL("http://localhost:" + port + "/db");
     }
 
+    @BeforeEach
+    void clear() throws ResponseException {
+        this.makeRequest("DELETE", "/db", null, null);
+    }
+
     @AfterAll
     static void stopServer() {
         server.stop();
@@ -37,14 +44,105 @@ public class FirstTest {
 
 
     @Test
-    public void testRequest() throws ResponseException {
+    public void testGetRequest() throws ResponseException {
         this.makeRequest("GET", "/test", null, null);
     }
 
     @Test
-    public void clearRequest() throws ResponseException {
+    public void clearEmptyData() throws ResponseException {
         this.makeRequest("DELETE", "/db", null, null);
     }
+
+    @Test
+    public void registerUsers() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        HashMap<String, String> m2 = new HashMap<String, String>();
+        m2.put("username","CoderGirl");
+        m2.put("password","123");
+        m2.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m2, Object.class);
+    }
+
+    @Test
+    public void clearPopulatedData() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        this.makeRequest("DELETE", "/db", null, null);
+    }
+
+    @Test
+    public void registerExistingUser() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        HashMap<String, String> m2 = new HashMap<String, String>();
+        m2.put("username","CoderGuy");
+        m2.put("password","123");
+        m2.put("email","coderemail@emails.com");
+        assertThrows(ResponseException.class, () -> {
+            this.makeRequest("POST", "/user", m2, Object.class);
+        });
+    }
+
+    @Test
+    public void loginExistingUser() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        HashMap<String, String> m2 = new HashMap<String, String>();
+        m2.put("username","CoderGuy");
+        m2.put("password","123");
+        this.makeRequest("POST","/session", m2, Object.class);
+    }
+
+    @Test
+    public void loginAttemptNonRegisteredUser() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        HashMap<String, String> m2 = new HashMap<String, String>();
+        m2.put("username","CoderGal");
+        m2.put("password","120000");
+        assertThrows(ResponseException.class, () -> {
+            this.makeRequest("POST","/session", m2, Object.class);
+        });
+    }
+
+    @Test
+    public void incorrectPassword() throws ResponseException {
+        HashMap<String, String> m = new HashMap<String, String>();
+        m.put("username","CoderGuy");
+        m.put("password","123");
+        m.put("email","coderemail@emails.com");
+        this.makeRequest("POST", "/user", m, Object.class);
+
+        HashMap<String, String> m2 = new HashMap<String, String>();
+        m2.put("username","CoderGuy");
+        m2.put("password","120000");
+        assertThrows(ResponseException.class, () -> {
+            this.makeRequest("POST","/session", m2, Object.class);
+        });
+    }
+
+
 
 
 

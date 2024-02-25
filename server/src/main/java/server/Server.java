@@ -20,13 +20,10 @@ public class Server {
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
-
         Spark.staticFiles.location("web");
 
-        // Register your endpoints and handle exceptions here.
         Spark.get("/test", this::handleTestRequest);
         Spark.delete("/db", this::delete);
-
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -37,17 +34,14 @@ public class Server {
     }
 
     public Object delete(Request request, Response response) throws DataAccessException {
-        System.out.printf("Within server...");
         if (new AdminService(memoryDataAccess).delete()) {
-            System.out.printf("about to return a successful response code 200...");
             response.status(200);
-            System.out.printf("successful!!");
+            return "";
         } else {
             String res = response.body();
             response.status(500);
             return res;
         }
-        return null; // get rid of this once ^^ is implemented
     }
 
     public void stop() {

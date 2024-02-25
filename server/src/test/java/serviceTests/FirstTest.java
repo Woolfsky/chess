@@ -41,10 +41,10 @@ public class FirstTest {
         this.makeRequest("GET", "/test", null, null);
     }
 
-//    @Test
-//    public void clearRequest() throws ResponseException {
-//        this.makeRequest("DELETE", "/db", null, null);
-//    }
+    @Test
+    public void clearRequest() throws ResponseException {
+        this.makeRequest("DELETE", "/db", null, null);
+    }
 
 
 

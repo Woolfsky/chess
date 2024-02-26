@@ -1,9 +1,11 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
 import model.AuthData;
+import passoffTests.testClasses.TestModels;
 import service.AdminService;
 import service.ClientService;
 import spark.*;
@@ -15,6 +17,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,35 +29,25 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        Spark.get("/test", this::handleTestRequest);
-        Spark.post("/test2", this::handleTestRequestPOST);
-
         Spark.delete("/db", this::delete);
         Spark.post("/user", this::register);
         Spark.post("/session", this::login);
-//        Spark.delete("/session", this::logout);
+        Spark.delete("/session", this::logout);
 
         Spark.awaitInitialization();
         return Spark.port();
     }
 
-    public String handleTestRequest(Request request, Response response) {
-        return "This is a test response!";
-    }
-
-    public String handleTestRequestPOST(Request request, Response response) {
-        String req = new Gson().fromJson(request.body(), String.class);
-        return "Your parameter was " + req;
-    }
-
     public Object delete(Request request, Response response) throws DataAccessException {
-        if (new AdminService(memoryDataAccess).delete()) {
+        try {
+            new AdminService(memoryDataAccess).delete();
             response.status(200);
             return "{}";
-        } else {
-            String res = response.body();
+        } catch (Exception ex) {
             response.status(500);
-            return new Gson().toJson(res);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", ex.getMessage());
+            return new Gson().toJson(m);
         }
     }
 
@@ -63,17 +56,28 @@ public class Server {
         String username = req.get("username");
         String password = req.get("password");
         String email = req.get("email");
-
-        AuthData authData = new ClientService(memoryDataAccess).register(username, password, email);
-        if (authData != null) {
-            response.status(200);
-            return new Gson().toJson(authData);
-        } else {
-            String res = response.body();
-            response.status(403);
-            return new Gson().toJson(res);
+        if (username == null || password == null || email == null) {
+            response.status(400);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", "Error: bad request");
+            return new Gson().toJson(m);
         }
 
+        try {
+            AuthData authData = new ClientService(memoryDataAccess).register(username, password, email);
+            response.status(200);
+            return new Gson().toJson(authData);
+        } catch (DataAccessException e) {
+            response.status(403);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", "Error: already taken");
+            return new Gson().toJson(m);
+        } catch (Exception ex) {
+            response.status(500);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", ex.getMessage());
+            return new Gson().toJson(m);
+        }
     }
 
     public Object login(Request request, Response response) throws DataAccessException {
@@ -81,17 +85,41 @@ public class Server {
         String username = req.get("username");
         String password = req.get("password");
 
-        AuthData authData = new ClientService(memoryDataAccess).login(username, password);
-
-        if (authData != null) {
+        try {
+            AuthData authData = new ClientService(memoryDataAccess).login(username, password);
             response.status(200);
             return new Gson().toJson(authData);
-        } else {
-            String res = response.body();
+        } catch (DataAccessException e) {
+            response.status(401);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", "Error: unauthorized");
+            return new Gson().toJson(m);
+        } catch (Exception ex) {
             response.status(500);
-            return new Gson().toJson(res);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", ex.getMessage());
+            return new Gson().toJson(m);
         }
+    }
 
+    public Object logout(Request request, Response response) throws DataAccessException {
+        String authToken = request.headers("Authorization");
+
+        try {
+            Boolean status = new ClientService(memoryDataAccess).logout(authToken);
+            response.status(200);
+            return "{}";
+        } catch (DataAccessException e) {
+            response.status(401);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", "Error: unauthorized");
+            return new Gson().toJson(m);
+        } catch (Exception ex) {
+            response.status(500);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", ex.getMessage());
+            return new Gson().toJson(m);
+        }
     }
 
     public void stop() {

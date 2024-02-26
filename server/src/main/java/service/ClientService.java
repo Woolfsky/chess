@@ -41,7 +41,11 @@ public class ClientService {
         }
     }
 
-    public boolean logout(AuthData auth) {
-        return false;
+    public boolean logout(String authToken) throws DataAccessException {
+        if (dAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
+        } else {
+            return dAccess.deleteAuth(authToken);
+        }
     }
 }

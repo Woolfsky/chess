@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public class MemoryDataAccess implements DataAccess {
 
-    private HashMap<String, AuthData> AuthDataMap = new HashMap<>();
-    private HashMap<String, UserData> UserDataMap = new HashMap<>();
+    private HashMap<String, AuthData> AuthDataMap = new HashMap<>(); // maps an AuthToken to an AuthData object
+    private HashMap<String, UserData> UserDataMap = new HashMap<>(); // maps a username to a UserData object
     private HashMap<String, GameData> GameDataMap = new HashMap<>();
 
     public boolean deleteData() throws DataAccessException {
@@ -37,7 +37,16 @@ public class MemoryDataAccess implements DataAccess {
     public AuthData createAuth(String username) {
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, username);
-        AuthDataMap.put(username, authData);
+        AuthDataMap.put(authToken, authData);
         return authData;
+    }
+
+    public AuthData getAuth(String authToken) {
+        return AuthDataMap.get(authToken);
+    }
+
+    public boolean deleteAuth(String username) {
+        AuthDataMap.remove(username);
+        return AuthDataMap.get(username) == null;
     }
 }

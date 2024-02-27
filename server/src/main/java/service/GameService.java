@@ -1,21 +1,42 @@
 package service;
 
+import dataAccess.DataAccess;
+import dataAccess.DataAccessException;
 import model.GameData;
 import model.AuthData;
+
+import java.util.List;
+import java.util.Map;
 
 public class GameService {
     /*
     GameService handles methods relating to games: list games, create game, join game
      */
-    public GameData listGames(AuthData auth) {
-        return null;
+    DataAccess dAccess;
+
+    public GameService(DataAccess dAccess) {
+        this.dAccess = dAccess;
     }
 
-    public GameData createGame(AuthData auth, String gameName) {
-        return null;
+    public List<GameData> listGames(String authToken) throws DataAccessException {
+        if (dAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
+        } else {
+            String username = dAccess.getAuth(authToken).getUsername();
+            return dAccess.getGames(username);
+        }
     }
 
-    public boolean joinGame(AuthData auth, String playerColor, int gameID) {
+    public Integer createGame(String authToken, String gameName) throws DataAccessException {
+        if (dAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
+        } else {
+            String username = dAccess.getAuth(authToken).getUsername();
+            return dAccess.newGame(username, gameName);
+        }
+    }
+
+    public boolean joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
         return false;
     }
 }

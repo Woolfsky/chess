@@ -3,9 +3,13 @@ import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
 import model.AuthData;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import service.AdminService;
 import service.ClientService;
+import service.GameService;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -70,6 +74,55 @@ public class FirstTest {
         ClientService s = new ClientService(mAccess);
         s.register("CoderGuy", "123", "emails");
         assertThrows(DataAccessException.class, () -> {s.login("CoderGuy", "123456");});
+    }
+
+    @Test
+    public void requestGamesForNewUser() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        ClientService s = new ClientService(mAccess);
+        AuthData authData = s.register("CoderGuy", "123", "emails");
+        List<GameData> games = g.listGames(authData.getAuthToken());
+        assertEquals(games.size(), 0);
+    }
+
+    @Test
+    public void createGame() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        ClientService s = new ClientService(mAccess);
+        AuthData authData = s.register("CoderGuy", "123", "emails");
+        Integer gameID = g.createGame(authData.getAuthToken(), "myNewGame");
+        assertNotEquals(0, gameID);
+    }
+
+    @Test
+    public void createGameUnauthorized() {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        assertThrows(DataAccessException.class, () -> {
+            g.createGame("fakeToken", "myNewGame");
+        });
+    }
+
+    @Test
+    public void requestGamesForExperiencedUser() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        ClientService s = new ClientService(mAccess);
+        AuthData authData = s.register("CoderGuy", "123", "emails");
+        g.createGame(authData.getAuthToken(), "myNewGame");
+        List<GameData> games = g.listGames(authData.getAuthToken());
+        assertEquals(games.size(), 1);
+    }
+
+    @Test
+    public void requestGamesForUnregisteredUser() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        assertThrows(DataAccessException.class, () -> {
+            g.listGames("fake_auth_token");
+        });
     }
 
 }

@@ -1,7 +1,11 @@
 package dataAccess;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
+
+import java.util.List;
+import java.util.Map;
 
 public interface DataAccess {
     boolean deleteData() throws DataAccessException; // fix this, this shouldn't throw anything, the service endpoint should
@@ -15,4 +19,8 @@ public interface DataAccess {
     AuthData getAuth(String username);
 
     boolean deleteAuth(String username);
+
+    List<GameData> getGames(String username);
+
+    Integer newGame(String username, String gameName);
 }

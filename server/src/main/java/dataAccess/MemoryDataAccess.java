@@ -3,16 +3,16 @@ package dataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import java.util.Random;
 
 import javax.xml.crypto.Data;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 public class MemoryDataAccess implements DataAccess {
 
     private HashMap<String, AuthData> AuthDataMap = new HashMap<>(); // maps an AuthToken to an AuthData object
     private HashMap<String, UserData> UserDataMap = new HashMap<>(); // maps a username to a UserData object
-    private HashMap<String, GameData> GameDataMap = new HashMap<>();
+    private HashMap<Integer, GameData> GameDataMap = new HashMap<>(); // maps a gameID to a GameData object
 
     public boolean deleteData() throws DataAccessException {
         AuthDataMap.clear();
@@ -48,5 +48,19 @@ public class MemoryDataAccess implements DataAccess {
     public boolean deleteAuth(String username) {
         AuthDataMap.remove(username);
         return AuthDataMap.get(username) == null;
+    }
+
+    public List<GameData> getGames(String username) {
+        return new ArrayList<>(GameDataMap.values());
+    }
+
+    public Integer newGame(String username, String gameName) {
+        int gameID = new Random().nextInt(10000);
+        while (GameDataMap.containsKey(gameID)) {
+            gameID = new Random().nextInt(10000);
+        }
+        GameData game = new GameData(gameID, "", "", gameName, "");
+        GameDataMap.put(gameID, game);
+        return gameID;
     }
 }

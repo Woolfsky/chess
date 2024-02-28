@@ -232,15 +232,7 @@ public class ChessPiece {
     }
 
     public void checkMakeKingMoves(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
-        if (inBounds(tempRow, tempCol)) {
-            if (isBlank(tempRow, tempCol, board)) {
-                addMove(tempRow, tempCol, myPosition);
-            } else {
-                if (isEnemy(tempRow, tempCol, board)) {
-                    addMove(tempRow, tempCol, myPosition);
-                }
-            }
-        }
+        if (inBounds(tempRow, tempCol)) { if (isBlank(tempRow, tempCol, board)) { addMove(tempRow, tempCol, myPosition); } else { if (isEnemy(tempRow, tempCol, board)) { addMove(tempRow, tempCol, myPosition); } } }
     }
 
     public void checkMakeKnightMoves(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
@@ -295,17 +287,11 @@ public class ChessPiece {
     }
 
     public void pawnInBoundsMovesWhite(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
-        if (inBounds(tempRow, tempCol) && isBlank(tempRow, tempCol, board)) {
+        if (inBounds(tempRow, tempCol)
+                && isBlank(tempRow, tempCol, board)) {
             if (tempRow == 8) {
-                ChessPosition pos = new ChessPosition(tempRow, tempCol);
-                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                this.moves.add(move1);
-                this.moves.add(move2);
-                this.moves.add(move3);
-                this.moves.add(move4);
+                ChessPosition pos = new ChessPosition(tempRow, tempCol); ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN); ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP); ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT); ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+                this.moves.add(move1); this.moves.add(move2); this.moves.add(move3); this.moves.add(move4);
             } else {
                 addMove(tempRow, tempCol, myPosition);
             }

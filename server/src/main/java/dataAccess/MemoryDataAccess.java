@@ -59,8 +59,19 @@ public class MemoryDataAccess implements DataAccess {
         while (GameDataMap.containsKey(gameID)) {
             gameID = new Random().nextInt(10000);
         }
-        GameData game = new GameData(gameID, "", "", gameName, "");
+        GameData game = new GameData(gameID, null, null, gameName, null);
         GameDataMap.put(gameID, game);
         return gameID;
     }
+
+    public GameData getGame(Integer gameID) {
+        return GameDataMap.get(gameID);
+    }
+
+    public boolean addPlayer(Integer gameID, String username, String playerColor) {
+        GameData gameData = GameDataMap.get(gameID);
+        GameData updatedGameData = gameData.addPlayerToRecord(playerColor, username);
+        GameDataMap.put(gameID, updatedGameData);
+        return true;
+    };
 }

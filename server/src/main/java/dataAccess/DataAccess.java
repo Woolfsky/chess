@@ -23,4 +23,8 @@ public interface DataAccess {
     List<GameData> getGames(String username);
 
     Integer newGame(String username, String gameName);
+
+    GameData getGame(Integer gameID);
+
+    boolean addPlayer(Integer gameID, String username, String playerColor);
 }

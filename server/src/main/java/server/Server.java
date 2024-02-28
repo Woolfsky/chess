@@ -6,6 +6,7 @@ import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
 import model.AuthData;
 import model.GameData;
+import org.junit.jupiter.api.Assertions;
 import passoffTests.testClasses.TestModels;
 import service.AdminService;
 import service.ClientService;
@@ -19,10 +20,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Server {
 
@@ -38,6 +36,7 @@ public class Server {
         Spark.delete("/session", this::logout);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
 
         Spark.awaitInitialization();
         return Spark.port();
@@ -111,7 +110,7 @@ public class Server {
         String authToken = request.headers("Authorization");
 
         try {
-            Boolean status = new ClientService(memoryDataAccess).logout(authToken);
+            new ClientService(memoryDataAccess).logout(authToken);
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {
@@ -176,6 +175,52 @@ public class Server {
             m.put("message", ex.getMessage());
             return new Gson().toJson(m);
         }
+    }
+
+    public Object joinGame(Request request, Response response) {
+        String authToken = request.headers("Authorization");
+        Map<String, Object> req = new Gson().fromJson(request.body(), Map.class);
+        String playerColor = (String) req.get("playerColor");
+        Double gameID = (Double) req.get("gameID");
+        int intGameID = gameID.intValue();
+
+        if (gameID.isNaN()) {
+            response.status(400);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", "Error: bad request");
+            return new Gson().toJson(m);
+        }
+
+        try {
+            new GameService(memoryDataAccess).joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
+            Map<String, Integer> m = new HashMap<>();
+            response.status(200);
+            return "{}";
+        } catch (DataAccessException e) {
+            if (Objects.equals(e.getMessage(), "Tried to retrieve an authData object for a username not in the system.")) {
+                response.status(401);
+                Map<String, String> m = new HashMap<>();
+                m.put("message", "Error: unauthorized");
+                return new Gson().toJson(m);
+            } else if (Objects.equals(e.getMessage(), "No game exists")) {
+                response.status(400);
+                Map<String, String> m = new HashMap<>();
+                m.put("message", "Error: bad request");
+                return new Gson().toJson(m);
+            } else if (Objects.equals(e.getMessage(), "Player position already taken")) {
+                response.status(403);
+                Map<String, String> m = new HashMap<>();
+                m.put("message", "Error: already taken");
+                return new Gson().toJson(m);
+            }
+        } catch (Exception ex) {
+            response.status(500);
+            Map<String, String> m = new HashMap<>();
+            m.put("message", ex.getMessage());
+            System.out.printf(ex.getMessage());
+            return new Gson().toJson(m);
+        }
+        return null;
     }
 
     public void stop() {

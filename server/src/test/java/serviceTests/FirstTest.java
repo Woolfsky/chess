@@ -117,11 +117,33 @@ public class FirstTest {
     }
 
     @Test
-    public void requestGamesForUnregisteredUser() throws DataAccessException {
+    public void requestGamesForUnregisteredUser() {
         DataAccess mAccess = new MemoryDataAccess();
         GameService g = new GameService(mAccess);
         assertThrows(DataAccessException.class, () -> {
             g.listGames("fake_auth_token");
+        });
+    }
+
+    @Test
+    public void joinGame() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        ClientService s = new ClientService(mAccess);
+        AuthData authData = s.register("CoderGuy", "123", "emails");
+        Integer gameID = g.createGame(authData.getAuthToken(), "myNewGame");
+        boolean joinStatus = g.joinGame(authData.getAuthToken(), "WHITE", gameID);
+        assertTrue(joinStatus);
+    }
+
+    @Test
+    public void joinNonexistantGame() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        GameService g = new GameService(mAccess);
+        ClientService s = new ClientService(mAccess);
+        AuthData authData = s.register("CoderGuy", "123", "emails");
+        assertThrows(DataAccessException.class, () -> {
+            g.joinGame(authData.getAuthToken(), "WHITE", 1);
         });
     }
 

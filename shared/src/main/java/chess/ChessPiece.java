@@ -2,11 +2,9 @@ package chess;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 
 /**
  * Represents a single chess piece
- * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
@@ -23,43 +21,13 @@ public class ChessPiece {
     /**
      * The various different chess piece options
      */
-    public enum PieceType {
-        KING,
-        QUEEN,
-        BISHOP,
-        KNIGHT,
-        ROOK,
-        PAWN
-    }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//
-//        ChessPiece that = (ChessPiece) o;
-//
-//        if (team != that.team) return false;
-//        if (type != that.type) return false;
-//        return Objects.equals(moves, that.moves);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        int result = team != null ? team.hashCode() : 0;
-//        result = 31 * result + (type != null ? type.hashCode() : 0);
-//        result = 31 * result + (moves != null ? moves.hashCode() : 0);
-//        return result;
-//    }
-
+    public enum PieceType { KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ChessPiece that = (ChessPiece) o;
-
         if (team != that.team) return false;
         return type == that.type;
     }
@@ -87,15 +55,12 @@ public class ChessPiece {
 
     /**
      * Calculates all the positions a chess piece can move to
-     * Does not take into account moves that are illegal due to leaving the king in
-     * danger
-     *
+     * Does not take into account moves that are illegal due to leaving the king in danger
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
 
         this.moves = new HashSet<>();
-
         if (this.type == PieceType.BISHOP) {
             addBishopMoves(board, myPosition);
         }
@@ -115,8 +80,6 @@ public class ChessPiece {
             addRookMoves(board, myPosition);
             addBishopMoves(board, myPosition);
         }
-
-
         return moves;
     }
 
@@ -140,14 +103,6 @@ public class ChessPiece {
         return false;
     }
 
-    public boolean isFriendly(int row, int col, ChessBoard board) {
-        ChessPosition pos = new ChessPosition(row, col);
-        if (board.getPiece(pos).getTeamColor() == this.team) {
-            return true;
-        }
-        return false;
-    }
-
     public boolean isEnemy(int row, int col, ChessBoard board) {
         ChessPosition pos = new ChessPosition(row, col);
         if (board.getPiece(pos).getTeamColor() != this.team) {
@@ -162,192 +117,139 @@ public class ChessPiece {
         this.moves.add(move);
     }
 
-
     public void addBishopMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int temp_row = row;
-        int temp_col = col;
-
+        int tempRow = row;
+        int tempCol = col;
         // up left
-        temp_row = row + 1;
-        temp_col = col - 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row + 1;
+        tempCol = col - 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row++;
-            temp_col--;
+            tempRow++;
+            tempCol--;
         }
-
         // up right
-        temp_row = row + 1;
-        temp_col = col + 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row + 1;
+        tempCol = col + 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row++;
-            temp_col++;
+            tempRow++;
+            tempCol++;
         }
-
         // down left
-        temp_row = row - 1;
-        temp_col = col - 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row - 1;
+        tempCol = col - 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row--;
-            temp_col--;
+            tempRow--;
+            tempCol--;
         }
-
         // down right
-        temp_row = row - 1;
-        temp_col = col + 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row - 1;
+        tempCol = col + 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row--;
-            temp_col++;
+            tempRow--;
+            tempCol++;
         }
     }
 
     public void addKingMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int temp_row = row;
-        int temp_col = col;
-
+        int tempRow = row;
+        int tempCol = col;
         // up
-        temp_row = row + 1;
-        temp_col = col;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row + 1;
+        tempCol = col;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // up, left
-        temp_row = row + 1;
-        temp_col = col - 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row + 1;
+        tempCol = col - 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // left
-        temp_row = row;
-        temp_col = col - 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row;
+        tempCol = col - 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // left down
-        temp_row = row - 1;
-        temp_col = col - 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 1;
+        tempCol = col - 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // down
-        temp_row = row - 1;
-        temp_col = col;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 1;
+        tempCol = col;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // down right
-        temp_row = row - 1;
-        temp_col = col + 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 1;
+        tempCol = col + 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
         // right
-        temp_row = row;
-        temp_col = col + 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row;
+        tempCol = col + 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
+        // right up
+        tempRow = row + 1;
+        tempCol = col + 1;
+        checkMakeKingMoves(tempRow, tempCol, board, myPosition);
+    }
+
+    public void checkMakeKingMoves(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                 }
             }
         }
+    }
 
-        // right up
-        temp_row = row + 1;
-        temp_col = col + 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+    public void checkMakeKnightMoves(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                 }
             }
         }
@@ -356,110 +258,110 @@ public class ChessPiece {
     public void addKnightMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int temp_row = row;
-        int temp_col = col;
-
+        int tempRow = row;
+        int tempCol = col;
         // two up, left
-        temp_row = row + 2;
-        temp_col = col - 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row + 2;
+        tempCol = col - 1;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two left, up
-        temp_row = row + 1;
-        temp_col = col - 2;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row + 1;
+        tempCol = col - 2;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two left, down
-        temp_row = row - 1;
-        temp_col = col - 2;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 1;
+        tempCol = col - 2;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two down, left
-        temp_row = row - 2;
-        temp_col = col - 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 2;
+        tempCol = col - 1;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two down, right
-        temp_row = row - 2;
-        temp_col = col + 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 2;
+        tempCol = col + 1;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two right, down
-        temp_row = row - 1;
-        temp_col = col + 2;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
-            } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-        }
-
+        tempRow = row - 1;
+        tempCol = col + 2;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
         // two right, up
-        temp_row = row + 1;
-        temp_col = col + 2;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row + 1;
+        tempCol = col + 2;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
+        // two up, right
+        tempRow = row + 2;
+        tempCol = col + 1;
+        checkMakeKnightMoves(tempRow, tempCol, board, myPosition);
+    }
+
+    public void pawnInBoundsMovesWhite(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol) && isBlank(tempRow, tempCol, board)) {
+            if (tempRow == 8) {
+                ChessPosition pos = new ChessPosition(tempRow, tempCol);
+                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
+                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
+                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
+                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+                this.moves.add(move1);
+                this.moves.add(move2);
+                this.moves.add(move3);
+                this.moves.add(move4);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
+                addMove(tempRow, tempCol, myPosition);
             }
         }
+    }
 
-        // two up, right
-        temp_row = row + 2;
-        temp_col = col + 1;
-        if (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+    public void pawnInBoundsMovesBlack(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol) && isBlank(tempRow, tempCol, board)) {
+            if (tempRow == 1) {
+                ChessPosition pos = new ChessPosition(tempRow, tempCol);
+                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
+                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
+                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
+                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+                this.moves.add(move1);
+                this.moves.add(move2);
+                this.moves.add(move3);
+                this.moves.add(move4);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
-                }
+                addMove(tempRow, tempCol, myPosition);
+            }
+        }
+    }
+
+    public void pawnInBoundsMovesDiagonalWhite(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol) && !isBlank(tempRow, tempCol, board) && isEnemy(tempRow, tempCol, board)) {
+            if (tempRow == 8) {
+                ChessPosition pos = new ChessPosition(tempRow, tempCol);
+                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
+                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
+                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
+                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+                this.moves.add(move1);
+                this.moves.add(move2);
+                this.moves.add(move3);
+                this.moves.add(move4);
+            } else {
+                addMove(tempRow, tempCol, myPosition);
+            }
+        }
+    }
+
+    public void pawnInBoundsMovesDiagonalBlack(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
+        if (inBounds(tempRow, tempCol) && !isBlank(tempRow, tempCol, board) && isEnemy(tempRow, tempCol, board)) {
+            if (tempRow == 1) {
+                ChessPosition pos = new ChessPosition(tempRow, tempCol);
+                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
+                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
+                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
+                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+                this.moves.add(move1);
+                this.moves.add(move2);
+                this.moves.add(move3);
+                this.moves.add(move4);
+            } else {
+                addMove(tempRow, tempCol, myPosition);
             }
         }
     }
@@ -467,224 +369,123 @@ public class ChessPiece {
     public void addPawnMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int temp_row = row;
-        int temp_col = col;
-
+        int tempRow = row;
+        int tempCol = col;
         if (this.team == ChessGame.TeamColor.WHITE) { // white pawns
             // normal move forward
-            temp_row = row + 1;
-            temp_col = col;
-            if (inBounds(temp_row, temp_col) && isBlank(temp_row, temp_col, board)) {
-                if (temp_row == 8) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-
+            tempRow = row + 1;
+            tempCol = col;
+            pawnInBoundsMovesWhite(tempRow, tempCol, board, myPosition);
             // special double move on first turn
-            temp_row = row + 2;
-            temp_col = col;
-            if (inBounds(temp_row, temp_col)
-                    && isBlank(temp_row, temp_col, board)
-                    && isBlank(temp_row - 1, temp_col, board)
+            tempRow = row + 2;
+            tempCol = col;
+            if (inBounds(tempRow, tempCol)
+                    && isBlank(tempRow, tempCol, board)
+                    && isBlank(tempRow - 1, tempCol, board)
                     && row == 2) {
-                addMove(temp_row, temp_col, myPosition);
+                addMove(tempRow, tempCol, myPosition);
             }
-
             // diagonal kill left
-            temp_row = row + 1;
-            temp_col = col - 1;
-            if (inBounds(temp_row, temp_col) && !isBlank(temp_row, temp_col, board) && isEnemy(temp_row, temp_col, board)) {
-                if (temp_row == 8) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-
+            tempRow = row + 1;
+            tempCol = col - 1;
+            pawnInBoundsMovesDiagonalWhite(tempRow, tempCol, board, myPosition);
             // diagonal kill right
-            temp_row = row + 1;
-            temp_col = col + 1;
-            if (inBounds(temp_row, temp_col) && !isBlank(temp_row, temp_col, board) && isEnemy(temp_row, temp_col, board)) {
-                if (temp_row == 8) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-
+            tempRow = row + 1;
+            tempCol = col + 1;
+            pawnInBoundsMovesDiagonalWhite(tempRow, tempCol, board, myPosition);
         } else { // black pawns
             // normal move forward
-            temp_row = row - 1;
-            temp_col = col;
-            if (inBounds(temp_row, temp_col) && isBlank(temp_row, temp_col, board)) {
-                if (temp_row == 1) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-
+            tempRow = row - 1;
+            tempCol = col;
+            pawnInBoundsMovesBlack(tempRow, tempCol, board, myPosition);
             // special double move on first turn
-            temp_row = row - 2;
-            temp_col = col;
-            if (inBounds(temp_row, temp_col)
-                    && isBlank(temp_row, temp_col, board)
-                    && isBlank(temp_row + 1, temp_col, board)
+            tempRow = row - 2;
+            tempCol = col;
+            if (inBounds(tempRow, tempCol)
+                    && isBlank(tempRow, tempCol, board)
+                    && isBlank(tempRow + 1, tempCol, board)
                     && row == 7) {
-                addMove(temp_row, temp_col, myPosition);
+                addMove(tempRow, tempCol, myPosition);
             }
-
             // diagonal kill left
-            temp_row = row - 1;
-            temp_col = col - 1;
-            if (inBounds(temp_row, temp_col) && !isBlank(temp_row, temp_col, board) && isEnemy(temp_row, temp_col, board)) {
-                if (temp_row == 1) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
-
+            tempRow = row - 1;
+            tempCol = col - 1;
+            pawnInBoundsMovesDiagonalBlack(tempRow, tempCol, board, myPosition);
             // diagonal kill right
-            temp_row = row - 1;
-            temp_col = col + 1;
-            if (inBounds(temp_row, temp_col) && !isBlank(temp_row, temp_col, board) && isEnemy(temp_row, temp_col, board)) {
-                if (temp_row == 1) {
-                    ChessPosition pos = new ChessPosition(temp_row, temp_col);
-                    ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                    ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                    ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                    ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                    this.moves.add(move1);
-                    this.moves.add(move2);
-                    this.moves.add(move3);
-                    this.moves.add(move4);
-                } else {
-                    addMove(temp_row, temp_col, myPosition);
-                }
-            }
+            tempRow = row - 1;
+            tempCol = col + 1;
+            pawnInBoundsMovesDiagonalBlack(tempRow, tempCol, board, myPosition);
         }
     }
 
     public void addRookMoves(ChessBoard board, ChessPosition myPosition) {
         int row = myPosition.getRow();
         int col = myPosition.getColumn();
-        int temp_row = row;
-        int temp_col = col;
-
+        int tempRow = row;
+        int tempCol = col;
         // up
-        temp_row = row + 1;
-        temp_col = col;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row + 1;
+        tempCol = col;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row++;
+            tempRow++;
         }
-
         // down
-        temp_row = row - 1;
-        temp_col = col;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row - 1;
+        tempCol = col;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_row--;
+            tempRow--;
         }
-
         // left
-        temp_row = row;
-        temp_col = col - 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row;
+        tempCol = col - 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_col--;
+            tempCol--;
         }
-
         // right
-        temp_row = row;
-        temp_col = col + 1;
-        while (inBounds(temp_row, temp_col)) {
-            if (isBlank(temp_row, temp_col, board)) {
-                addMove(temp_row, temp_col, myPosition);
+        tempRow = row;
+        tempCol = col + 1;
+        while (inBounds(tempRow, tempCol)) {
+            if (isBlank(tempRow, tempCol, board)) {
+                addMove(tempRow, tempCol, myPosition);
             } else {
-                if (isEnemy(temp_row, temp_col, board)) {
-                    addMove(temp_row, temp_col, myPosition);
+                if (isEnemy(tempRow, tempCol, board)) {
+                    addMove(tempRow, tempCol, myPosition);
                     break;
                 } else {
                     break;
                 }
             }
-            temp_col++;
+            tempCol++;
         }
     }
-
-
-
-
-
 }

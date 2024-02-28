@@ -184,9 +184,9 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 ChessPosition pos = new ChessPosition(i, j);
                 if (this.board.getPiece(pos) != null && this.board.getPiece(pos).getTeamColor() != teamColor) {
-                    ChessPiece enemy_p = this.board.getPiece(pos);
-                    Collection<ChessMove> enemy_p_moves = enemy_p.pieceMoves(this.board, pos);
-                    for (ChessMove m : enemy_p_moves) {
+                    ChessPiece enemyP = this.board.getPiece(pos);
+                    Collection<ChessMove> enemyPMoves = enemyP.pieceMoves(this.board, pos);
+                    for (ChessMove m : enemyPMoves) {
                         if (m.getEndPosition().getRow() == kingPos.getRow() && m.getEndPosition().getColumn() == kingPos.getColumn()) {
                             return true;
                         }
@@ -233,20 +233,20 @@ public class ChessGame {
         return false;
     }
 
-    boolean canFriendlyPieceBlockCheck(ChessPiece friendly_p, ChessPosition pos) {
-        TeamColor teamColor = friendly_p.getTeamColor();
-        Collection<ChessMove> friendly_p_moves = friendly_p.pieceMoves(this.board, pos);
-        for (ChessMove m : friendly_p_moves) {
+    boolean canFriendlyPieceBlockCheck(ChessPiece friendlyP, ChessPosition pos) {
+        TeamColor teamColor = friendlyP.getTeamColor();
+        Collection<ChessMove> friendlyPMoves = friendlyP.pieceMoves(this.board, pos);
+        for (ChessMove m : friendlyPMoves) {
             // go through the friendly piece's moves to see if any will take the king out of check
             if (this.board.getPiece(m.getEndPosition()) != null) {
                 // there is a piece there to kill
                 ChessPiece killedPiece = this.board.getPiece(m.getEndPosition());
                 try {
-                    setTeamTurn(friendly_p.getTeamColor());
+                    setTeamTurn(friendlyP.getTeamColor());
                     this.makeMove(m);
-                    setTeamTurn(friendly_p.getTeamColor());
+                    setTeamTurn(friendlyP.getTeamColor());
                     // not in checkmate! but better reset the hypothetical move back to how it was before
-                    this.board.addPiece(pos, friendly_p);
+                    this.board.addPiece(pos, friendlyP);
                     this.board.removePiece(m.getEndPosition());
                     this.board.addPiece(m.getEndPosition(), killedPiece);
                     return true;
@@ -254,11 +254,11 @@ public class ChessGame {
             } else {
                 // that was an empty spot
                 try {
-                    setTeamTurn(friendly_p.getTeamColor());
+                    setTeamTurn(friendlyP.getTeamColor());
                     this.makeMove(m);
-                    setTeamTurn(friendly_p.getTeamColor());
+                    setTeamTurn(friendlyP.getTeamColor());
                     // not in checkmate! but better reset the hypothetical move back to how it was before
-                    this.board.addPiece(pos, friendly_p);
+                    this.board.addPiece(pos, friendlyP);
                     this.board.removePiece(m.getEndPosition());
                     return true;
                 } catch (InvalidMoveException ex) {};
@@ -272,8 +272,8 @@ public class ChessGame {
             for (int j = 1; j < 9; j++) {
                 ChessPosition pos = new ChessPosition(i, j);
                 if (this.board.getPiece(pos) != null && this.board.getPiece(pos).getTeamColor() == teamColor) {
-                    ChessPiece friendly_p = this.board.getPiece(pos);
-                    if (canFriendlyPieceBlockCheck(friendly_p, pos)) { return true; }
+                    ChessPiece friendlyP = this.board.getPiece(pos);
+                    if (canFriendlyPieceBlockCheck(friendlyP, pos)) { return true; }
                 }
             }
         }

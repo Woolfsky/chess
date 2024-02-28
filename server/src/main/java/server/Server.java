@@ -42,16 +42,41 @@ public class Server {
         return Spark.port();
     }
 
+    public Object throw500(Response response, Exception ex) {
+        response.status(500);
+        Map<String, String> m = new HashMap<>();
+        m.put("message", ex.getMessage());
+        return new Gson().toJson(m);
+    }
+
+    public Object throw400(Response response) {
+        response.status(400);
+        Map<String, String> m = new HashMap<>();
+        m.put("message", "Error: bad request");
+        return new Gson().toJson(m);
+    }
+
+    public Object throw401(Response response) {
+        response.status(401);
+        Map<String, String> m = new HashMap<>();
+        m.put("message", "Error: unauthorized");
+        return new Gson().toJson(m);
+    }
+
+    public Object throw403(Response response) {
+        response.status(403);
+        Map<String, String> m = new HashMap<>();
+        m.put("message", "Error: already taken");
+        return new Gson().toJson(m);
+    }
+
     public Object delete(Request request, Response response) {
         try {
             new AdminService(memoryDataAccess).delete();
             response.status(200);
             return "{}";
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -61,10 +86,7 @@ public class Server {
         String password = req.get("password");
         String email = req.get("email");
         if (username == null || password == null || email == null) {
-            response.status(400);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: bad request");
-            return new Gson().toJson(m);
+            return throw400(response);
         }
 
         try {
@@ -72,15 +94,9 @@ public class Server {
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
-            response.status(403);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: already taken");
-            return new Gson().toJson(m);
+            return throw403(response);
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -94,15 +110,9 @@ public class Server {
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
-            response.status(401);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: unauthorized");
-            return new Gson().toJson(m);
+            return throw401(response);
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -114,15 +124,9 @@ public class Server {
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {
-            response.status(401);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: unauthorized");
-            return new Gson().toJson(m);
+            return throw401(response);
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -135,15 +139,9 @@ public class Server {
             response.status(200);
             return new Gson().toJson(m);
         } catch (DataAccessException e) {
-            response.status(401);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: unauthorized");
-            return new Gson().toJson(m);
+            return throw401(response);
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -152,10 +150,7 @@ public class Server {
         Map<String, String> req = new Gson().fromJson(request.body(), Map.class);
         String gameName = req.get("gameName");
         if (gameName == null) {
-            response.status(400);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: bad request");
-            return new Gson().toJson(m);
+            return throw400(response);
         }
 
         try {
@@ -165,15 +160,9 @@ public class Server {
             response.status(200);
             return new Gson().toJson(m);
         } catch (DataAccessException e) {
-            response.status(401);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: unauthorized");
-            return new Gson().toJson(m);
+            return throw401(response);
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
     }
 
@@ -185,10 +174,7 @@ public class Server {
         int intGameID = gameID.intValue();
 
         if (gameID.isNaN()) {
-            response.status(400);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", "Error: bad request");
-            return new Gson().toJson(m);
+            return throw400(response);
         }
 
         try {
@@ -198,27 +184,14 @@ public class Server {
             return "{}";
         } catch (DataAccessException e) {
             if (Objects.equals(e.getMessage(), "Tried to retrieve an authData object for a username not in the system.")) {
-                response.status(401);
-                Map<String, String> m = new HashMap<>();
-                m.put("message", "Error: unauthorized");
-                return new Gson().toJson(m);
+                return throw401(response);
             } else if (Objects.equals(e.getMessage(), "No game exists")) {
-                response.status(400);
-                Map<String, String> m = new HashMap<>();
-                m.put("message", "Error: bad request");
-                return new Gson().toJson(m);
+                return throw400(response);
             } else if (Objects.equals(e.getMessage(), "Player position already taken")) {
-                response.status(403);
-                Map<String, String> m = new HashMap<>();
-                m.put("message", "Error: already taken");
-                return new Gson().toJson(m);
+                return throw403(response);
             }
         } catch (Exception ex) {
-            response.status(500);
-            Map<String, String> m = new HashMap<>();
-            m.put("message", ex.getMessage());
-            System.out.printf(ex.getMessage());
-            return new Gson().toJson(m);
+            return throw500(response, ex);
         }
         return null;
     }

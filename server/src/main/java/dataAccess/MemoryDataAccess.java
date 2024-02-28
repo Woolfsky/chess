@@ -5,20 +5,19 @@ import model.GameData;
 import model.UserData;
 import java.util.Random;
 
-import javax.xml.crypto.Data;
 import java.util.*;
 
 public class MemoryDataAccess implements DataAccess {
 
-    private HashMap<String, AuthData> AuthDataMap = new HashMap<>(); // maps an AuthToken to an AuthData object
-    private HashMap<String, UserData> UserDataMap = new HashMap<>(); // maps a username to a UserData object
-    private HashMap<Integer, GameData> GameDataMap = new HashMap<>(); // maps a gameID to a GameData object
+    private HashMap<String, AuthData> authDataMap = new HashMap<>(); // maps an AuthToken to an AuthData object
+    private HashMap<String, UserData> userDataMap = new HashMap<>(); // maps a username to a UserData object
+    private HashMap<Integer, GameData> gameDataMap = new HashMap<>(); // maps a gameID to a GameData object
 
     public boolean deleteData() throws DataAccessException {
-        AuthDataMap.clear();
-        UserDataMap.clear();
-        GameDataMap.clear();
-        if (AuthDataMap.isEmpty() && UserDataMap.isEmpty() && GameDataMap.isEmpty()) {
+        authDataMap.clear();
+        userDataMap.clear();
+        gameDataMap.clear();
+        if (authDataMap.isEmpty() && userDataMap.isEmpty() && gameDataMap.isEmpty()) {
             return true;
         } else {
             throw new DataAccessException("Tried to delete all data but failed");
@@ -26,52 +25,52 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     public UserData getUser(String username) {
-        return UserDataMap.get(username);
+        return userDataMap.get(username);
     }
 
     public void createUser(String username, String password, String email) {
         UserData userData = new UserData(username, password, email);
-        UserDataMap.put(username, userData);
+        userDataMap.put(username, userData);
     }
 
     public AuthData createAuth(String username) {
         String authToken = UUID.randomUUID().toString();
         AuthData authData = new AuthData(authToken, username);
-        AuthDataMap.put(authToken, authData);
+        authDataMap.put(authToken, authData);
         return authData;
     }
 
     public AuthData getAuth(String authToken) {
-        return AuthDataMap.get(authToken);
+        return authDataMap.get(authToken);
     }
 
     public boolean deleteAuth(String username) {
-        AuthDataMap.remove(username);
-        return AuthDataMap.get(username) == null;
+        authDataMap.remove(username);
+        return authDataMap.get(username) == null;
     }
 
     public List<GameData> getGames(String username) {
-        return new ArrayList<>(GameDataMap.values());
+        return new ArrayList<>(gameDataMap.values());
     }
 
     public Integer newGame(String username, String gameName) {
         int gameID = new Random().nextInt(10000);
-        while (GameDataMap.containsKey(gameID)) {
+        while (gameDataMap.containsKey(gameID)) {
             gameID = new Random().nextInt(10000);
         }
         GameData game = new GameData(gameID, null, null, gameName, null);
-        GameDataMap.put(gameID, game);
+        gameDataMap.put(gameID, game);
         return gameID;
     }
 
     public GameData getGame(Integer gameID) {
-        return GameDataMap.get(gameID);
+        return gameDataMap.get(gameID);
     }
 
     public boolean addPlayer(Integer gameID, String username, String playerColor) {
-        GameData gameData = GameDataMap.get(gameID);
+        GameData gameData = gameDataMap.get(gameID);
         GameData updatedGameData = gameData.addPlayerToRecord(playerColor, username);
-        GameDataMap.put(gameID, updatedGameData);
+        gameDataMap.put(gameID, updatedGameData);
         return true;
     };
 }

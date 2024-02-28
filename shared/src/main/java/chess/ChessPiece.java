@@ -285,33 +285,29 @@ public class ChessPiece {
     public void pawnInBoundsMovesWhite(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
         if (inBounds(tempRow, tempCol) && isBlank(tempRow, tempCol, board)) {
             if (tempRow == 8) {
-                ChessPosition pos = new ChessPosition(tempRow, tempCol); 
-                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                this.moves.add(move1);
-                this.moves.add(move2);
-                this.moves.add(move3);
-                this.moves.add(move4);
+                pawnCodeDump(tempRow, tempCol, myPosition);
             } else {
                 addMove(tempRow, tempCol, myPosition);
             }
         }
     }
 
+    public void pawnCodeDump(int tempRow, int tempCol, ChessPosition myPosition) {
+        ChessPosition pos = new ChessPosition(tempRow, tempCol);
+        ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
+        ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
+        ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
+        ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
+        this.moves.add(move1);
+        this.moves.add(move2);
+        this.moves.add(move3);
+        this.moves.add(move4);
+    }
+
     public void pawnInBoundsMovesBlack(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
-        if (isBlank(tempRow, tempCol, board) && inBounds(tempRow, tempCol)) { // duplicate
+        if (isBlank(tempRow, tempCol, board) && inBounds(tempRow, tempCol)) {
             if (tempRow == 1) {
-                ChessPosition pos = new ChessPosition(tempRow, tempCol);
-                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                this.moves.add(move1);
-                this.moves.add(move2);
-                this.moves.add(move3);
-                this.moves.add(move4);
+                pawnCodeDump(tempRow, tempCol, myPosition);
             } else {
                 addMove(tempRow, tempCol, myPosition);
             }
@@ -320,16 +316,8 @@ public class ChessPiece {
 
     public void pawnInBoundsMovesDiagonalWhite(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
         if (inBounds(tempRow, tempCol) && !isBlank(tempRow, tempCol, board) && isEnemy(tempRow, tempCol, board)) {
-            if (tempRow == 8) {
-                ChessPosition pos = new ChessPosition(tempRow, tempCol);
-                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                this.moves.add(move1);
-                this.moves.add(move2);
-                this.moves.add(move3);
-                this.moves.add(move4);
+            if (tempRow == 8) { // duplicate 1->
+                pawnCodeDump(tempRow, tempCol, myPosition);
             } else {
                 addMove(tempRow, tempCol, myPosition);
             }
@@ -339,15 +327,7 @@ public class ChessPiece {
     public void pawnInBoundsMovesDiagonalBlack(int tempRow, int tempCol, ChessBoard board, ChessPosition myPosition) {
         if (inBounds(tempRow, tempCol) && !isBlank(tempRow, tempCol, board) && isEnemy(tempRow, tempCol, board)) {
             if (tempRow == 1) {
-                ChessPosition pos = new ChessPosition(tempRow, tempCol);
-                ChessMove move1 = new ChessMove(myPosition, pos, PieceType.QUEEN);
-                ChessMove move2 = new ChessMove(myPosition, pos, PieceType.BISHOP);
-                ChessMove move3 = new ChessMove(myPosition, pos, PieceType.KNIGHT);
-                ChessMove move4 = new ChessMove(myPosition, pos, PieceType.ROOK);
-                this.moves.add(move1);
-                this.moves.add(move2);
-                this.moves.add(move3);
-                this.moves.add(move4);
+                pawnCodeDump(tempRow, tempCol, myPosition);
             } else {
                 addMove(tempRow, tempCol, myPosition);
             }

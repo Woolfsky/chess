@@ -5,4 +5,4 @@ Test start process:
 3. open the `chess` directory in IntelliJ and start coding (note, generate hashing and equals for each new class)
 
 GitHub<br>
-Revert to a previous version of your code with `git reset --hard <revision number>`
+Revert to a previous version of your code with `git reset --hard <revision number>` followed by `git push origin main -f`

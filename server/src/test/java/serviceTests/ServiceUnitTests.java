@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FirstTest {
+public class ServiceUnitTests {
     @Test
     public void clearEmptyData() throws DataAccessException {
         DataAccess mAccess = new MemoryDataAccess();

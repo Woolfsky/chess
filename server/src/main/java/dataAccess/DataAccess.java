@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface DataAccess {
-    boolean deleteData() throws DataAccessException; // fix this, this shouldn't throw anything, the service endpoint should
+    boolean deleteData() throws DataAccessException;
 
     UserData getUser(String username);
 

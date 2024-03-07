@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,7 +34,12 @@ public class SQLDataAccess implements DataAccess {
         return null;
     };
 
-    public void createUser(String username, String password, String email) {};
+    public void createUser(String username, String password, String email) throws DataAccessException {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(password);
+        String statement = "INSERT INTO gameUser (username, password, email) VALUES ('" + username + "', '" + hashedPassword + "', '" + email + "');";
+        executeUpdate(statement);
+    };
 
     public AuthData createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();

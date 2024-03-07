@@ -43,9 +43,8 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public AuthData getAuth(String username) throws DataAccessException, SQLException {
-        String statement = "SELECT authToken, username FROM auth WHERE username == " + username + ";";
-        ResultSet rs = executeQuery(statement);
-        return readAuthData(rs);
+        String statement = "SELECT authToken, username FROM auth WHERE username = '" + username + "';";
+        return executeAuthQuery(statement);
     };
 
     public boolean deleteAuth(String username) {
@@ -123,12 +122,11 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
-    public ResultSet executeQuery(String statement) throws DataAccessException {
+    public AuthData executeAuthQuery(String statement) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
-                    rs.next();
-                    return rs;
+                    return readAuthData(rs);
                 }
             }
         } catch (DataAccessException e) {
@@ -140,9 +138,13 @@ public class SQLDataAccess implements DataAccess {
     }
 
     public AuthData readAuthData(ResultSet rs) throws SQLException {
-        String authToken = rs.getString("authToken");
-        String username = rs.getString("username");
-        return new AuthData(authToken, username);
+        if (rs.next()) {
+            String authToken = rs.getString("authToken");
+            String username = rs.getString("username");
+            return new AuthData(authToken, username);
+        } else {
+            return null;
+        }
     }
 
 

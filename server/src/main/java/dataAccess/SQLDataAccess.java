@@ -31,7 +31,8 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        String statement = "SELECT username, password, email FROM gameUser WHERE username = '" + username + "';";
+        return executeUserQuery(statement);
     };
 
     public void createUser(String username, String password, String email) throws DataAccessException {
@@ -143,11 +144,37 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    public UserData executeUserQuery(String statement) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    return readUserData(rs);
+                }
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public AuthData readAuthData(ResultSet rs) throws SQLException {
         if (rs.next()) {
             String authToken = rs.getString("authToken");
             String username = rs.getString("username");
             return new AuthData(authToken, username);
+        } else {
+            return null;
+        }
+    }
+
+    public UserData readUserData(ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            String username = rs.getString("username");
+            String hashedPassword = rs.getString("password");
+            String email = rs.getString("email");
+            return new UserData(username, hashedPassword, email);
         } else {
             return null;
         }

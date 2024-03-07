@@ -56,4 +56,17 @@ public class DatabaseUnitTests {
             s.createUser("coolguy", "password", "myemail@coders.com");
         });
     }
+
+    @Test
+    public void getUser() throws DataAccessException, SQLException {
+        DataAccess s = new SQLDataAccess();
+        s.createUser("coolguy", "password", "myemail@coders.com");
+        assertNotNull(s.getUser("coolguy"));
+    }
+
+    @Test
+    public void getBadUser() throws DataAccessException, SQLException {
+        DataAccess s = new SQLDataAccess();
+        assertNull(s.getUser("coolgirl"));
+    }
 }

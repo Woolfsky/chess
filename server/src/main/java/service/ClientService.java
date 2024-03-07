@@ -30,7 +30,8 @@ public class ClientService {
     public AuthData login(String username, String password) throws DataAccessException {
         if (dAccess.getUser(username) != null) {
             UserData userData = dAccess.getUser(username);
-            if (userData.getUsername().equals(username) && userData.getPassword().equals(password)) {
+            // HASH THE PASSWORD HERE
+            if (userData.getUsername().equals(username) && userData.getPassword().equals(password)) { // change this check as it will return a hashed password: maybe just change the memory data access method to hash the password too
                 AuthData authData = dAccess.createAuth(username);
                 return authData;
             } else {

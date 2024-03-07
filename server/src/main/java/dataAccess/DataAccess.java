@@ -4,19 +4,20 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 public interface DataAccess {
     boolean deleteData() throws DataAccessException;
 
-    UserData getUser(String username);
+    UserData getUser(String username) throws DataAccessException;
 
     void createUser(String username, String password, String email);
 
-    AuthData createAuth(String username);
+    AuthData createAuth(String username) throws DataAccessException;
 
-    AuthData getAuth(String username);
+    AuthData getAuth(String username) throws DataAccessException, SQLException;
 
     boolean deleteAuth(String username);
 

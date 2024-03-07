@@ -9,6 +9,7 @@ import service.AdminService;
 import service.ClientService;
 import service.GameService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,7 +78,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void requestGamesForNewUser() throws DataAccessException {
+    public void requestGamesForNewUser() throws DataAccessException, SQLException {
         DataAccess mAccess = new MemoryDataAccess();
         GameService g = new GameService(mAccess);
         ClientService s = new ClientService(mAccess);
@@ -87,7 +88,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void createGame() throws DataAccessException {
+    public void createGame() throws DataAccessException, SQLException {
         DataAccess mAccess = new MemoryDataAccess();
         GameService g = new GameService(mAccess);
         ClientService s = new ClientService(mAccess);
@@ -106,7 +107,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void requestGamesForExperiencedUser() throws DataAccessException {
+    public void requestGamesForExperiencedUser() throws DataAccessException, SQLException {
         DataAccess mAccess = new MemoryDataAccess();
         GameService g = new GameService(mAccess);
         ClientService s = new ClientService(mAccess);
@@ -126,7 +127,7 @@ public class ServiceUnitTests {
     }
 
     @Test
-    public void joinGame() throws DataAccessException {
+    public void joinGame() throws DataAccessException, SQLException {
         DataAccess mAccess = new MemoryDataAccess();
         GameService g = new GameService(mAccess);
         ClientService s = new ClientService(mAccess);

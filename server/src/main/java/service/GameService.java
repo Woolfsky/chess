@@ -5,6 +5,7 @@ import dataAccess.DataAccessException;
 import model.GameData;
 import model.AuthData;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +20,7 @@ public class GameService {
         this.dAccess = dAccess;
     }
 
-    public List<GameData> listGames(String authToken) throws DataAccessException {
+    public List<GameData> listGames(String authToken) throws DataAccessException, SQLException {
         if (dAccess.getAuth(authToken) == null) {
             throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
         } else {
@@ -28,7 +29,7 @@ public class GameService {
         }
     }
 
-    public Integer createGame(String authToken, String gameName) throws DataAccessException {
+    public Integer createGame(String authToken, String gameName) throws DataAccessException, SQLException {
         if (dAccess.getAuth(authToken) == null) {
             throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
         } else {
@@ -37,7 +38,7 @@ public class GameService {
         }
     }
 
-    public boolean joinGame(String authToken, String playerColor, int gameID) throws DataAccessException {
+    public boolean joinGame(String authToken, String playerColor, int gameID) throws DataAccessException, SQLException {
         if (dAccess.getAuth(authToken) == null) {
             throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
         } else if (dAccess.getGame(gameID) == null) {

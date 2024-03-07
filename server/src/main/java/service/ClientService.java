@@ -5,6 +5,8 @@ import dataAccess.DataAccessException;
 import model.UserData;
 import model.AuthData;
 
+import java.sql.SQLException;
+
 public class ClientService {
     /*
     ClientService handles methods relating to the individual client: registration, login, and logout
@@ -41,7 +43,7 @@ public class ClientService {
         }
     }
 
-    public boolean logout(String authToken) throws DataAccessException {
+    public boolean logout(String authToken) throws DataAccessException, SQLException {
         if (dAccess.getAuth(authToken) == null) {
             throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
         } else {

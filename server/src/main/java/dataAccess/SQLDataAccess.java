@@ -1,12 +1,15 @@
 package dataAccess;
 
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SQLDataAccess implements DataAccess {
 
@@ -26,18 +29,23 @@ public class SQLDataAccess implements DataAccess {
         return true;
     };
 
-    public UserData getUser(String username) {
+    public UserData getUser(String username) throws DataAccessException {
         return null;
     };
 
     public void createUser(String username, String password, String email) {};
 
-    public AuthData createAuth(String username) {
-        return null;
+    public AuthData createAuth(String username) throws DataAccessException {
+        String authToken = UUID.randomUUID().toString();
+        String statement = "INSERT INTO auth (authToken, username) VALUES ('" + authToken + "', '" + username + "');";
+        executeUpdate(statement);
+        return new AuthData(authToken, username);
     };
 
-    public AuthData getAuth(String username) {
-        return null;
+    public AuthData getAuth(String username) throws DataAccessException, SQLException {
+        String statement = "SELECT authToken, username FROM auth WHERE username == " + username + ";";
+        ResultSet rs = executeQuery(statement);
+        return readAuthData(rs);
     };
 
     public boolean deleteAuth(String username) {
@@ -114,4 +122,28 @@ public class SQLDataAccess implements DataAccess {
             throw new RuntimeException(e);
         }
     }
+
+    public ResultSet executeQuery(String statement) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    rs.next();
+                    return rs;
+                }
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public AuthData readAuthData(ResultSet rs) throws SQLException {
+        String authToken = rs.getString("authToken");
+        String username = rs.getString("username");
+        return new AuthData(authToken, username);
+    }
+
+
 }

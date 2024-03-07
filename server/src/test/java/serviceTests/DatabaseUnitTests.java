@@ -9,9 +9,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class DatabaseUnitTests {
     @Test
-    public void deleteEmptyData() throws DataAccessException {
-        DataAccess sAccess = new SQLDataAccess();
-        AdminService a = new AdminService(sAccess);
-        assertTrue(a.delete());
+    public void deleteData() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertTrue(s.deleteData());
+    }
+
+    @Test
+    public void createAuth() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertDoesNotThrow(() -> {
+            s.createAuth("awesomeCoder123");
+        });
+    }
+
+    @Test
+    public void getAuth() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        s.createAuth("awesomeCoder123");
+        assertDoesNotThrow(() -> {
+            s.getAuth("awesomeCoder123");
+        });
     }
 }

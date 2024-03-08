@@ -27,5 +27,5 @@ public interface DataAccess {
 
     GameData getGame(Integer gameID) throws DataAccessException;
 
-    boolean addPlayer(Integer gameID, String username, String playerColor);
+    boolean addPlayer(Integer gameID, String username, String playerColor) throws DataAccessException;
 }

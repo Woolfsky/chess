@@ -1,30 +1,25 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
+import dataAccess.SQLDataAccess;
 import model.AuthData;
 import model.GameData;
-import org.junit.jupiter.api.Assertions;
-import passoffTests.testClasses.TestModels;
 import service.AdminService;
 import service.ClientService;
 import service.GameService;
 import spark.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.*;
 
 public class Server {
 
-    MemoryDataAccess memoryDataAccess = new MemoryDataAccess();
+//    MemoryDataAccess dataAccess = new MemoryDataAccess();
+    SQLDataAccess dataAccess = new SQLDataAccess();
+
+    public Server() {
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -72,7 +67,7 @@ public class Server {
 
     public Object delete(Request request, Response response) {
         try {
-            new AdminService(memoryDataAccess).delete();
+            new AdminService(dataAccess).delete();
             response.status(200);
             return "{}";
         } catch (Exception ex) {
@@ -90,7 +85,7 @@ public class Server {
         }
 
         try {
-            AuthData authData = new ClientService(memoryDataAccess).register(username, password, email);
+            AuthData authData = new ClientService(dataAccess).register(username, password, email);
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
@@ -106,7 +101,7 @@ public class Server {
         String password = req.get("password");
 
         try {
-            AuthData authData = new ClientService(memoryDataAccess).login(username, password);
+            AuthData authData = new ClientService(dataAccess).login(username, password);
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
@@ -120,7 +115,7 @@ public class Server {
         String authToken = request.headers("Authorization");
 
         try {
-            new ClientService(memoryDataAccess).logout(authToken);
+            new ClientService(dataAccess).logout(authToken);
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {
@@ -133,7 +128,7 @@ public class Server {
     public Object listGames(Request request, Response response) {
         String authToken = request.headers("Authorization");
         try {
-            List<GameData> games = new GameService(memoryDataAccess).listGames(authToken);
+            List<GameData> games = new GameService(dataAccess).listGames(authToken);
             Map<String, List<GameData>> m = new HashMap<>();
             m.put("games", games);
             response.status(200);
@@ -154,7 +149,7 @@ public class Server {
         }
 
         try {
-            Integer gameID = new GameService(memoryDataAccess).createGame(authToken, gameName);
+            Integer gameID = new GameService(dataAccess).createGame(authToken, gameName);
             Map<String, Integer> m = new HashMap<>();
             m.put("gameID", gameID);
             response.status(200);
@@ -178,7 +173,7 @@ public class Server {
         }
 
         try {
-            new GameService(memoryDataAccess).joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
+            new GameService(dataAccess).joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
             Map<String, Integer> m = new HashMap<>();
             response.status(200);
             return "{}";

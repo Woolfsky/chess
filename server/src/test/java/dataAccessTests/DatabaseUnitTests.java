@@ -1,4 +1,4 @@
-package serviceTests;
+package dataAccessTests;
 
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
@@ -118,6 +118,28 @@ public class DatabaseUnitTests {
         DataAccess s = new SQLDataAccess();
         List<GameData> l = s.getGames("coolguy");
         assertEquals(l.size(), 0);
+    }
+
+    @Test
+    public void addPlayer() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        Integer i = s.newGame("coolguy", "mycoolgame");
+        assertTrue(s.addPlayer(i, "coolguy", "BLACK"));
+    }
+
+    @Test
+    public void addBadPlayerColor() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        Integer i = s.newGame("coolguy", "mycoolgame");
+        assertFalse(s.addPlayer(i, "coolguy", "BLUE"));
+    }
+
+    @Test
+    public void addPlayerToBadGame() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertThrows(DataAccessException.class, () -> {
+            s.addPlayer(2, "coolguy", "WHITE");
+        });
     }
 
 }

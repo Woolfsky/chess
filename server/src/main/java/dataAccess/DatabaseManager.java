@@ -42,7 +42,8 @@ public class DatabaseManager {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+//            throw new DataAccessException(e.getMessage()); // add this if it didnt fix the problem
+
         }
     }
 

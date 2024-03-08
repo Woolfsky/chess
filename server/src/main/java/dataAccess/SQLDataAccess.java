@@ -6,6 +6,7 @@ import model.GameData;
 import model.UserData;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,9 +15,17 @@ import java.util.UUID;
 
 public class SQLDataAccess implements DataAccess {
 
-    public SQLDataAccess() throws DataAccessException {
-        DatabaseManager.createDatabase();
-        addTables();
+    public SQLDataAccess()  {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            addTables();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean deleteData() throws DataAccessException {
@@ -76,8 +85,24 @@ public class SQLDataAccess implements DataAccess {
         return executeGameQuery(s);
     };
 
-    public boolean addPlayer(Integer gameID, String username, String playerColor) {
-        return false;
+    public boolean addPlayer(Integer gameID, String username, String playerColor) throws DataAccessException {
+        GameData g = getGame(gameID);
+        if (g == null) {
+            throw new DataAccessException("Invalid gameID");
+        }
+        if (playerColor == null) { return true; }
+        Integer id = g.getGameID();
+        if (playerColor == "WHITE") {
+            String s = "UPDATE game SET whiteUsername = '" + username + "' WHERE gameID = " + id + ";";
+            executeUpdate(s);
+        } else if (playerColor == "BLACK") {
+            String s = "UPDATE game SET blackUsername = '" + username + "' WHERE gameID = " + id + ";";
+            executeUpdate(s);
+        } else if (playerColor == "") {
+            return true;
+        } else { return false; }
+
+        return true;
     };
 
     private final String[] dbCreationStatements = {
@@ -169,7 +194,8 @@ public class SQLDataAccess implements DataAccess {
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 try (var rs = ps.executeQuery()) {
-                    return readGameData(rs);
+                    GameData g = readGameData(rs);
+                    return g;
                 }
             }
         } catch (DataAccessException e) {

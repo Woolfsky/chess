@@ -36,9 +36,7 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public void createUser(String username, String password, String email) throws DataAccessException {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hashedPassword = encoder.encode(password);
-        String statement = "INSERT INTO gameUser (username, password, email) VALUES ('" + username + "', '" + hashedPassword + "', '" + email + "');";
+        String statement = "INSERT INTO gameUser (username, password, email) VALUES ('" + username + "', '" + password + "', '" + email + "');";
         executeUpdate(statement);
     };
 

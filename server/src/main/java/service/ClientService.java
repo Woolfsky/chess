@@ -4,6 +4,7 @@ import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.UserData;
 import model.AuthData;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.sql.SQLException;
 
@@ -19,7 +20,9 @@ public class ClientService {
 
     public AuthData register(String username, String password, String email) throws DataAccessException {
         if (dAccess.getUser(username) == null) {
-            dAccess.createUser(username, password, email);
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            String hashedPassword = encoder.encode(password);
+            dAccess.createUser(username, hashedPassword, email);
             AuthData authData = dAccess.createAuth(username);
             return authData;
         } else {
@@ -30,8 +33,8 @@ public class ClientService {
     public AuthData login(String username, String password) throws DataAccessException {
         if (dAccess.getUser(username) != null) {
             UserData userData = dAccess.getUser(username);
-            // HASH THE PASSWORD HERE
-            if (userData.getUsername().equals(username) && userData.getPassword().equals(password)) { // change this check as it will return a hashed password: maybe just change the memory data access method to hash the password too
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (userData.getUsername().equals(username) && encoder.matches(password, userData.getPassword())) {
                 AuthData authData = dAccess.createAuth(username);
                 return authData;
             } else {

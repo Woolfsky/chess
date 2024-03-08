@@ -40,29 +40,29 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public UserData getUser(String username) throws DataAccessException {
-        String statement = "SELECT username, password, email FROM gameUser WHERE username = '" + username + "';";
+        String statement = "SELECT username, password, email FROM gameUser WHERE username = \"" + username + "\";";
         return executeUserQuery(statement);
     };
 
     public void createUser(String username, String password, String email) throws DataAccessException {
-        String statement = "INSERT INTO gameUser (username, password, email) VALUES ('" + username + "', '" + password + "', '" + email + "');";
+        String statement = "INSERT INTO gameUser (username, password, email) VALUES (\"" + username + "\", \"" + password + "\", \"" + email + "\");";
         executeUpdate(statement);
     };
 
     public AuthData createAuth(String username) throws DataAccessException {
         String authToken = UUID.randomUUID().toString();
-        String statement = "INSERT INTO auth (authToken, username) VALUES ('" + authToken + "', '" + username + "');";
+        String statement = "INSERT INTO auth (authToken, username) VALUES (\"" + authToken + "\", \"" + username + "\");";
         executeUpdate(statement);
         return new AuthData(authToken, username);
     };
 
-    public AuthData getAuth(String username) throws DataAccessException, SQLException {
-        String statement = "SELECT authToken, username FROM auth WHERE username = '" + username + "';";
+    public AuthData getAuth(String authToken) throws DataAccessException, SQLException {
+        String statement = "SELECT authToken, username FROM auth WHERE authToken = \"" + authToken + "\";";
         return executeAuthQuery(statement);
     };
 
-    public boolean deleteAuth(String username) throws DataAccessException {
-        String s = "DELETE FROM auth WHERE username = '" + username + "';";
+    public boolean deleteAuth(String authToken) throws DataAccessException {
+        String s = "DELETE FROM auth WHERE authToken = \"" + authToken + "\";";
         executeUpdate(s);
         return true;
     };
@@ -73,9 +73,9 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public Integer newGame(String username, String gameName) throws DataAccessException {
-        String s = "INSERT INTO game (gameName) VALUES ('" + gameName + "');";
+        String s = "INSERT INTO game (gameName) VALUES (\"" + gameName + "\");";
         executeUpdate(s);
-        String s2 = "SELECT gameID FROM game WHERE gameName = '" + gameName + "';";
+        String s2 = "SELECT gameID FROM game WHERE gameName = \"" + gameName + "\";";
         GameData g = executeGameQuery(s2);
         return g.getGameID();
     };
@@ -92,13 +92,13 @@ public class SQLDataAccess implements DataAccess {
         }
         if (playerColor == null) { return true; }
         Integer id = g.getGameID();
-        if (playerColor == "WHITE") {
-            String s = "UPDATE game SET whiteUsername = '" + username + "' WHERE gameID = " + id + ";";
+        if (playerColor.equals("WHITE")) {
+            String s = "UPDATE game SET whiteUsername = \"" + username + "\" WHERE gameID = " + id + ";";
             executeUpdate(s);
-        } else if (playerColor == "BLACK") {
-            String s = "UPDATE game SET blackUsername = '" + username + "' WHERE gameID = " + id + ";";
+        } else if (playerColor.equals("BLACK")) {
+            String s = "UPDATE game SET blackUsername = \"" + username + "\" WHERE gameID = " + id + ";";
             executeUpdate(s);
-        } else if (playerColor == "") {
+        } else if (playerColor.equals("")) {
             return true;
         } else { return false; }
 
@@ -149,6 +149,7 @@ public class SQLDataAccess implements DataAccess {
     public boolean executeUpdate(String statement) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
+//                preparedStatement.setString(1, )
                 preparedStatement.executeUpdate();
                 return true;
             }

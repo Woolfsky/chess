@@ -44,9 +44,9 @@ public class MemoryDataAccess implements DataAccess {
         return authDataMap.get(authToken);
     }
 
-    public boolean deleteAuth(String username) {
-        authDataMap.remove(username);
-        return authDataMap.get(username) == null;
+    public boolean deleteAuth(String authToken) {
+        authDataMap.remove(authToken);
+        return authDataMap.get(authToken) == null;
     }
 
     public List<GameData> getGames(String username) {

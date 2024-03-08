@@ -37,6 +37,14 @@ public class DatabaseUnitTests {
     }
 
     @Test
+    public void createBadAuth() {
+        DataAccess s = new SQLDataAccess();
+        assertThrows(RuntimeException.class, () -> {
+            s.createAuth("\"");
+        });
+    }
+
+    @Test
     public void getAuth() throws DataAccessException {
         DataAccess s = new SQLDataAccess();
         s.createAuth("awesomeCoder123");
@@ -56,6 +64,14 @@ public class DatabaseUnitTests {
         DataAccess s = new SQLDataAccess();
         assertDoesNotThrow(() -> {
             s.createUser("coolguy", "password", "myemail@coders.com");
+        });
+    }
+
+    @Test
+    public void createBadUser() {
+        DataAccess s = new SQLDataAccess();
+        assertThrows(RuntimeException.class, () -> {
+            s.createUser("cool\"guy", "password", "myemail@coders.com");
         });
     }
 
@@ -100,6 +116,12 @@ public class DatabaseUnitTests {
         assertDoesNotThrow(() -> {
             s.getGame(i);
         });
+    }
+
+    @Test
+    public void getBadGame() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertNull(s.getGame(3));
     }
 
     @Test

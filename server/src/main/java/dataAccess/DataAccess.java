@@ -21,11 +21,11 @@ public interface DataAccess {
 
     boolean deleteAuth(String username) throws DataAccessException;
 
-    List<GameData> getGames(String username);
+    List<GameData> getGames(String username) throws DataAccessException;
 
-    Integer newGame(String username, String gameName);
+    Integer newGame(String username, String gameName) throws DataAccessException;
 
-    GameData getGame(Integer gameID);
+    GameData getGame(Integer gameID) throws DataAccessException;
 
     boolean addPlayer(Integer gameID, String username, String playerColor);
 }

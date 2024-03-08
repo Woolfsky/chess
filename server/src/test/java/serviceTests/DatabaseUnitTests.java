@@ -3,12 +3,14 @@ package serviceTests;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.SQLDataAccess;
+import model.GameData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import service.AdminService;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,6 +85,39 @@ public class DatabaseUnitTests {
         assertDoesNotThrow(() -> {
             s.deleteAuth("coolguy");
         });
+    }
+
+    @Test
+    public void newGame() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertInstanceOf(Integer.class, s.newGame("coolguy", "mycoolgame"));
+    }
+
+    @Test
+    public void getGame() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        Integer i = s.newGame("coolguy", "mycoolgame");
+        assertDoesNotThrow(() -> {
+            s.getGame(i);
+        });
+    }
+
+    @Test
+    public void listGames() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        s.newGame("coolguy", "mycoolgame");
+        s.newGame("coolguy", "myOTHERcoolgame");
+        s.newGame("coolgal", "mycoolgame2");
+        s.newGame("coolbaby", "mycoolgame3");
+        List<GameData> l = s.getGames("coolguy");
+        assertNotNull(l);
+    }
+
+    @Test
+    public void listNoGames() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        List<GameData> l = s.getGames("coolguy");
+        assertEquals(l.size(), 0);
     }
 
 }

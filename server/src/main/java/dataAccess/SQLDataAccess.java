@@ -58,16 +58,22 @@ public class SQLDataAccess implements DataAccess {
         return true;
     };
 
-    public List<GameData> getGames(String username) {
-        return null;
+    public List<GameData> getGames(String username) throws DataAccessException {
+        String s = "SELECT * FROM game;";
+        return executeListGamesQuery(s);
     };
 
-    public Integer newGame(String username, String gameName) {
-        return null;
+    public Integer newGame(String username, String gameName) throws DataAccessException {
+        String s = "INSERT INTO game (gameName) VALUES ('" + gameName + "');";
+        executeUpdate(s);
+        String s2 = "SELECT gameID FROM game WHERE gameName = '" + gameName + "';";
+        GameData g = executeGameQuery(s2);
+        return g.getGameID();
     };
 
-    public GameData getGame(Integer gameID) {
-        return null;
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        String s = "SELECT gameID, gameName, whiteUsername, blackUsername, chessGame FROM game WHERE gameID = " + gameID + ";";
+        return executeGameQuery(s);
     };
 
     public boolean addPlayer(Integer gameID, String username, String playerColor) {
@@ -159,6 +165,40 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    public GameData executeGameQuery(String statement) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    return readGameData(rs);
+                }
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<GameData> executeListGamesQuery(String statement) throws DataAccessException {
+        var resultList = new ArrayList<GameData>();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                try (var rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        resultList.add(readGameDataNoNext(rs));
+                    }
+                }
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return resultList;
+    }
+
     public AuthData readAuthData(ResultSet rs) throws SQLException {
         if (rs.next()) {
             String authToken = rs.getString("authToken");
@@ -178,6 +218,36 @@ public class SQLDataAccess implements DataAccess {
         } else {
             return null;
         }
+    }
+
+    public GameData readGameData(ResultSet rs) throws SQLException {
+        if (rs.next()) {
+            Integer gameID = rs.getInt("gameID");
+            String gameName = null;
+            String whiteUsername = null;
+            String blackUsername = null;
+            String chessGame = null;
+            try { gameName = rs.getString("gameName"); } catch (SQLException s) {}
+            try { whiteUsername = rs.getString("whiteUsername"); } catch (SQLException s) {}
+            try { blackUsername = rs.getString("blackUsername"); } catch (SQLException s) {}
+            try { chessGame = rs.getString("chessGame"); } catch (SQLException s) {}
+            return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+        } else {
+            return null;
+        }
+    }
+
+    public GameData readGameDataNoNext(ResultSet rs) throws SQLException {
+        Integer gameID = rs.getInt("gameID");
+        String gameName = null;
+        String whiteUsername = null;
+        String blackUsername = null;
+        String chessGame = null;
+        try { gameName = rs.getString("gameName"); } catch (SQLException s) {}
+        try { whiteUsername = rs.getString("whiteUsername"); } catch (SQLException s) {}
+        try { blackUsername = rs.getString("blackUsername"); } catch (SQLException s) {}
+        try { chessGame = rs.getString("chessGame"); } catch (SQLException s) {}
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
     }
 
 

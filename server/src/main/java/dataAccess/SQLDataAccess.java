@@ -52,8 +52,10 @@ public class SQLDataAccess implements DataAccess {
         return executeAuthQuery(statement);
     };
 
-    public boolean deleteAuth(String username) {
-        return false;
+    public boolean deleteAuth(String username) throws DataAccessException {
+        String s = "DELETE FROM auth WHERE username = '" + username + "';";
+        executeUpdate(s);
+        return true;
     };
 
     public List<GameData> getGames(String username) {

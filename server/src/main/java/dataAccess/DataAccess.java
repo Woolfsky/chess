@@ -19,7 +19,7 @@ public interface DataAccess {
 
     AuthData getAuth(String username) throws DataAccessException, SQLException;
 
-    boolean deleteAuth(String username);
+    boolean deleteAuth(String username) throws DataAccessException;
 
     List<GameData> getGames(String username);
 

@@ -69,4 +69,20 @@ public class DatabaseUnitTests {
         DataAccess s = new SQLDataAccess();
         assertNull(s.getUser("coolgirl"));
     }
+
+    @Test
+    public void deleteAuth() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        s.createAuth("coolguy");
+        assertTrue(s.deleteAuth("coolguy"));
+    }
+
+    @Test
+    public void deleteBadAuth() throws DataAccessException {
+        DataAccess s = new SQLDataAccess();
+        assertDoesNotThrow(() -> {
+            s.deleteAuth("coolguy");
+        });
+    }
+
 }

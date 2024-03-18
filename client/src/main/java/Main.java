@@ -1,3 +1,4 @@
+import model.AuthData;
 import web.CommandHandler;
 import web.ServerFacade;
 
@@ -6,6 +7,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to Chess! Type help to get started.");
+        CommandHandler handler = new CommandHandler();;
         String state = "LOGGED_OUT: Not playing";
         while (!state.equals("QUIT")) {
             System.out.printf("[%s] >>> ", state);
@@ -13,7 +15,7 @@ public class Main {
             String line = scanner.nextLine();
             var parameters = line.split(" ");
 
-            CommandHandler handler = new CommandHandler(parameters, state);
+            handler.setParametersState(parameters, state);
             state = handler.executeReturnState();
         }
     }

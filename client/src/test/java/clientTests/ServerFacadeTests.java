@@ -52,10 +52,23 @@ public class ServerFacadeTests {
     }
 
     @Test
-    void loginBad() throws Exception {
+    void loginBad() {
         assertThrows(Exception.class, () -> {
             facade.login("ddsdf", "password");
         });
+    }
+
+    @Test
+    void logout() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        Object o = facade.logout(auth);
+        assertEquals(o.toString(), "{}");
+    }
+
+    @Test
+    void logoutBad() {
+        AuthData fakeAuth = new AuthData("fake", "fake");
+        assertThrows(Exception.class, () -> {facade.logout(fakeAuth);});
     }
 
 }

@@ -35,6 +35,7 @@ public class ClientService {
             UserData userData = dAccess.getUser(username);
             BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
             if (userData.getUsername().equals(username) && encoder.matches(password, userData.getPassword())) {
+                // override the old authToken if they're already logged in and they login again... implement this
                 AuthData authData = dAccess.createAuth(username);
                 return authData;
             } else {

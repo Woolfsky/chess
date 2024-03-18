@@ -90,5 +90,25 @@ public class ServerFacade {
         }
     }
 
+    public Object logout(AuthData auth) throws Exception {
+        // Specify the desired endpoint
+        URI uri = new URI("http://localhost:" + port + "/session");
+        HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+        http.setRequestMethod("DELETE");
+
+        // Write out a header
+        http.addRequestProperty("Content-Type", "application/json");
+        http.addRequestProperty("Authorization", auth.getAuthToken());
+
+        // Make the request
+        http.connect();
+
+        // Output the response body
+        try (InputStream respBody = http.getInputStream()) {
+            InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+            return new Gson().fromJson(inputStreamReader, Object.class);
+        }
+    }
+
 
 }

@@ -18,8 +18,7 @@ public class Server {
 //    MemoryDataAccess dataAccess = new MemoryDataAccess();
     SQLDataAccess dataAccess = new SQLDataAccess();
 
-    public Server() {
-    }
+    public Server() {}
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);

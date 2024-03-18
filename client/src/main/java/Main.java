@@ -1,21 +1,20 @@
-import chess.*;
+import web.CommandHandler;
+import web.ServerFacade;
+
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to Chess! Type help to get started.");
-        String state = "Logged out";
-        while (true) {
-            System.out.printf("Type a command >>> ");
+        String state = "LOGGED_OUT: Not playing";
+        while (!state.equals("QUIT")) {
+            System.out.printf("[%s] >>> ", state);
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             var parameters = line.split(" ");
 
             CommandHandler handler = new CommandHandler(parameters, state);
-
-            for (var p : parameters) {
-                System.out.printf("You said: %s%n", p);
-            }
+            state = handler.executeReturnState();
         }
     }
 }

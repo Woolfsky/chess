@@ -6,6 +6,8 @@ import server.Server;
 import static org.junit.jupiter.api.Assertions.*;
 import web.ServerFacade;
 
+import java.util.Map;
+
 
 public class ServerFacadeTests {
     private static Server server;
@@ -100,6 +102,42 @@ public class ServerFacadeTests {
         facade.createGame(auth, "testGame");
         var games = facade.listGames(auth);
         assertFalse(games.get("games").isEmpty());
+    }
+
+    @Test
+    void joinGame() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        Object gameObject = facade.createGame(auth, "game1");
+        String t = gameObject.toString().replaceAll("[{}]", "").split("=")[1].split("\\.")[0];
+        assertDoesNotThrow(() -> {
+            facade.joinGame(auth, Integer.parseInt(t), "WHITE");
+        });
+    }
+
+    @Test
+    void joinBadGame() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        assertThrows(Exception.class, () -> {
+            facade.joinGame(auth, 1, "WHITE");
+        });
+    }
+
+    @Test
+    void observeGame() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        Object gameObject = facade.createGame(auth, "game1");
+        String t = gameObject.toString().replaceAll("[{}]", "").split("=")[1].split("\\.")[0];
+        assertDoesNotThrow(() -> {
+            facade.joinGame(auth, Integer.parseInt(t), null);
+        });
+    }
+
+    @Test
+    void observeBadGame() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        assertThrows(Exception.class, () -> {
+            facade.joinGame(auth, 1, null);
+        });
     }
 
 }

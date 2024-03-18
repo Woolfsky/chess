@@ -164,7 +164,38 @@ public class ServerFacade {
         }
     }
 
-    public Object joinGames(AuthData auth, Integer gameID, game)
+    public Object joinGame(AuthData auth, Integer gameID, String playerColor) throws Exception {
+        // Specify the desired endpoint
+        URI uri = new URI("http://localhost:" + port + "/game");
+        HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+        http.setRequestMethod("PUT");
+
+        // Specify that we are going to write out data
+        http.setDoOutput(true);
+
+        // Write out a header
+        http.addRequestProperty("Content-Type", "application/json");
+        http.addRequestProperty("Authorization", auth.getAuthToken());
+
+        // Write out the body
+        Map body;
+        if (playerColor == null) {body = Map.of("gameID", gameID, "playerColor", "null");} else {
+            body = Map.of("gameID", gameID, "playerColor", playerColor);
+        }
+        try (var outputStream = http.getOutputStream()) {
+            var jsonBody = new Gson().toJson(body);
+            outputStream.write(jsonBody.getBytes());
+        }
+
+        // Make the request
+        http.connect();
+
+        // Output the response body
+        try (InputStream respBody = http.getInputStream()) {
+            InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+            return new Gson().fromJson(inputStreamReader, Map.class);
+        }
+    }
 
 
 }

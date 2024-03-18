@@ -32,13 +32,13 @@ public class CommandHandler {
     }
 
     public String executeReturnState() {
-        switch (state) {
-            case "LOGGED_OUT: Not playing":
-                return loggedOutNotPlaying();
-            case "LOGGED_IN: Not playing":
-                return loggedInNotPlaying();
-        }
-        return "not implemented yet....";
+        return switch (state) {
+            case "LOGGED_OUT: Not playing" -> loggedOutNotPlaying();
+            case "LOGGED_IN: Not playing" -> loggedInNotPlaying();
+            case "LOGGED_IN: Playing" -> loggedInPlaying();
+            case "LOGGED_IN: Observing" -> loggedInObserving();
+            default -> "Error: state is messed up, sorry...try restarting your terminal";
+        };
     }
 
     public String loggedOutNotPlaying() {
@@ -106,9 +106,8 @@ public class CommandHandler {
         }
         if (parameters[0].equals("create")) {
             try {
-                var gameObject = facade.createGame(authData, parameters[1]);
+                facade.createGame(authData, parameters[1]);
                 System.out.println("Created game " + parameters[1]);
-//                System.out.println("Created game " + parameters[1] + " with ID: " + gameObject.get("gameID"));
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -123,20 +122,83 @@ public class CommandHandler {
                 System.out.println(e.getMessage());
             }
         }
-//        if (parameters[0].equals("join")) {
-//            try {
-//                var games = facade.joinGame(authData, parameters[1], parameters[2]);
-//                System.out.println("Joined game " + parameters[1]);
-//                return "LOGGED_IN: Playing";
-//            } catch (Exception e) {
-//                System.out.println(e.getMessage());
-//            }
-//        }
+        if (parameters[0].equals("join")) {
+            try {
+                facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
+                System.out.println("Joined game " + parameters[1]);
+                return "LOGGED_IN: Playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        if (parameters[0].equals("observe")) {
+            try {
+                facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
+                System.out.println("Observing game " + parameters[1]);
+                return "LOGGED_IN: Observing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
         System.out.print("Invalid command. Choose one of the following:\n");
         System.out.print("    create <NAME> - to create an game\n");
         System.out.print("    list - to list games\n");
         System.out.print("    join <ID> [WHITE|BLACK|<empty>] - to join a game\n");
         System.out.print("    observe <ID> - to observe a game\n");
+        System.out.print("    logout - when you are done\n");
+        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    help - to list possible commands\n");
+        return state;
+    }
+
+    public String loggedInObserving() {
+        if (parameters[0].equals("help")) {
+            System.out.print("    logout - when you are done\n");
+            System.out.print("    quit - to quit playing chess\n");
+            System.out.print("    help - to list possible commands\n");
+            return "LOGGED_IN: Not playing";
+        }
+        if (parameters[0].equals("quit")) {
+            return "QUIT";
+        }
+        if (parameters[0].equals("logout")) {
+            try {
+                facade.logout(authData);
+                authData = null;
+                System.out.println("Logged out");
+                return "LOGGED_OUT: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.print("Invalid command. Choose one of the following:\n");
+        System.out.print("    logout - when you are done\n");
+        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    help - to list possible commands\n");
+        return state;
+    }
+
+    public String loggedInPlaying() {
+        if (parameters[0].equals("help")) {
+            System.out.print("    logout - when you are done\n");
+            System.out.print("    quit - to quit playing chess\n");
+            System.out.print("    help - to list possible commands\n");
+            return "LOGGED_IN: Not playing";
+        }
+        if (parameters[0].equals("quit")) {
+            return "QUIT";
+        }
+        if (parameters[0].equals("logout")) {
+            try {
+                facade.logout(authData);
+                authData = null;
+                System.out.println("Logged out");
+                return "LOGGED_OUT: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.print("Invalid command. Choose one of the following:\n");
         System.out.print("    logout - when you are done\n");
         System.out.print("    quit - to quit playing chess\n");
         System.out.print("    help - to list possible commands\n");

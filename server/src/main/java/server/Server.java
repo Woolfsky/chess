@@ -173,7 +173,6 @@ public class Server {
 
         try {
             new GameService(dataAccess).joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
-            Map<String, Integer> m = new HashMap<>();
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {

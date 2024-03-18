@@ -13,7 +13,7 @@ public class CommandHandler {
     String[] parameters;
     String state;
 
-    ServerFacade facade;
+    public ServerFacade facade;
 
     AuthData authData = null;
 
@@ -104,7 +104,23 @@ public class CommandHandler {
                 System.out.println(e.getMessage());
             }
         }
-
+        if (parameters[0].equals("create")) {
+            try {
+                facade.createGame(authData, parameters[1]);
+                System.out.println("Game created: " + parameters[1]);
+                return "LOGGED_OUT: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        System.out.print("Invalid command. Choose one of the following:\n");
+        System.out.print("    create <NAME> - to create an game\n");
+        System.out.print("    list - to list games\n");
+        System.out.print("    join <ID> [WHITE|BLACK|<empty>] - to join a game\n");
+        System.out.print("    observe <ID> - to observe a game\n");
+        System.out.print("    logout - when you are done\n");
+        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    help - to list possible commands\n");
         return state;
     }
 

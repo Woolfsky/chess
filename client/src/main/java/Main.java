@@ -9,6 +9,7 @@ public class Main {
         System.out.println("Welcome to Chess! Type help to get started.");
         CommandHandler handler = new CommandHandler();;
         String state = "LOGGED_OUT: Not playing";
+
         while (!state.equals("QUIT")) {
             System.out.printf("[%s] >>> ", state);
             Scanner scanner = new Scanner(System.in);
@@ -17,6 +18,12 @@ public class Main {
 
             handler.setParametersState(parameters, state);
             state = handler.executeReturnState();
+        }
+
+        try {
+            handler.facade.delete();
+        } catch (Exception e) {
+            System.out.println("Failed to clear database: " + e.getMessage());
         }
     }
 }

@@ -71,4 +71,20 @@ public class ServerFacadeTests {
         assertThrows(Exception.class, () -> {facade.logout(fakeAuth);});
     }
 
+    @Test
+    void createGame() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        assertDoesNotThrow(() -> {
+            facade.createGame(auth, "myFirstGame!");
+        });
+    }
+
+    @Test
+    void createBadGame() throws Exception {
+        AuthData fakeAuth = new AuthData("fake", "fake");
+        assertThrows(Exception.class, () -> {
+            facade.createGame(fakeAuth, "badGame");
+        });
+    }
+
 }

@@ -70,6 +70,14 @@ public class ServiceUnitTests {
     }
 
     @Test
+    public void loginAgain() throws DataAccessException {
+        DataAccess mAccess = new MemoryDataAccess();
+        ClientService s = new ClientService(mAccess);
+        s.register("CoderGuy", "123", "emails");
+        s.login("CoderGuy", "123");
+    }
+
+    @Test
     public void incorrectPassword() throws DataAccessException {
         DataAccess mAccess = new MemoryDataAccess();
         ClientService s = new ClientService(mAccess);

@@ -35,4 +35,27 @@ public class ServerFacadeTests {
         assertTrue(authData.authToken().length() > 10);
     }
 
+    @Test
+    void registerBad() throws Exception {
+        facade.register("ddsdf", "password", "p1@email.com");
+        assertThrows(Exception.class, () -> {
+            facade.register("ddsdf", "password", "p1@email.com");
+        });
+    }
+
+    @Test
+    void login() throws Exception {
+        facade.register("testGuy", "password", "testguy@email.com");
+        AuthData authData = facade.login("testGuy", "password");
+        assertTrue(authData.authToken().length() > 10);
+        // note, this allows two authDatas for one user... fix this bug
+    }
+
+    @Test
+    void loginBad() throws Exception {
+        assertThrows(Exception.class, () -> {
+            facade.login("ddsdf", "password");
+        });
+    }
+
 }

@@ -25,6 +25,8 @@ public class CommandHandler {
         switch (state) {
             case "LOGGED_OUT: Not playing":
                 return loggedOutNotPlaying();
+            case "LOGGED_IN: Not playing":
+//                return loggedInNotPlaying();
         }
         return "not implemented yet....";
     }
@@ -40,6 +42,15 @@ public class CommandHandler {
             }
 
         }
+        if (parameters[0].equals("login")) {
+            try {
+                facade.login(parameters[1], parameters[2]);
+                System.out.println("Logged in as " + parameters[1]);
+                return "LOGGED_IN: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
         if (parameters[0].equals("help")) {
             System.out.print("    register <USERNAME> <PASSWORD> <EMAIL> - to create an account\n");
             System.out.print("    login <USERNAME> <PASSWORD> - to play chess\n");
@@ -50,7 +61,12 @@ public class CommandHandler {
         if (parameters[0].equals("quit")) {
             return "QUIT";
         }
-        return "ERROR: should not have gotten here...";
+        System.out.print("Unrecognized command. Choose one of the following:\n");
+        System.out.print("    register <USERNAME> <PASSWORD> <EMAIL> - to create an account\n");
+        System.out.print("    login <USERNAME> <PASSWORD> - to play chess\n");
+        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    help - to list possible commands\n");
+        return state;
     }
 
 

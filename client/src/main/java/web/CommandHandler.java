@@ -106,13 +106,32 @@ public class CommandHandler {
         }
         if (parameters[0].equals("create")) {
             try {
-                facade.createGame(authData, parameters[1]);
-                System.out.println("Game created: " + parameters[1]);
-                return "LOGGED_OUT: Not playing";
+                var gameObject = facade.createGame(authData, parameters[1]);
+                System.out.println("Created game " + parameters[1]);
+//                System.out.println("Created game " + parameters[1] + " with ID: " + gameObject.get("gameID"));
+                return "LOGGED_IN: Not playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
+        if (parameters[0].equals("list")) {
+            try {
+                var games = facade.listGames(authData);
+                System.out.println("Games:\n" + games.get("games"));
+                return "LOGGED_IN: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+//        if (parameters[0].equals("join")) {
+//            try {
+//                var games = facade.joinGame(authData, parameters[1], parameters[2]);
+//                System.out.println("Joined game " + parameters[1]);
+//                return "LOGGED_IN: Playing";
+//            } catch (Exception e) {
+//                System.out.println(e.getMessage());
+//            }
+//        }
         System.out.print("Invalid command. Choose one of the following:\n");
         System.out.print("    create <NAME> - to create an game\n");
         System.out.print("    list - to list games\n");

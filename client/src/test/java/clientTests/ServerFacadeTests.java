@@ -87,4 +87,19 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    void listEmptyGames() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        var games = facade.listGames(auth);
+        assertTrue(games.get("games").isEmpty());
+    }
+
+    @Test
+    void listGames() throws Exception {
+        AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
+        facade.createGame(auth, "testGame");
+        var games = facade.listGames(auth);
+        assertFalse(games.get("games").isEmpty());
+    }
+
 }

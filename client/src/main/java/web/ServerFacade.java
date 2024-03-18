@@ -1,5 +1,6 @@
 package web;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 
@@ -139,6 +140,31 @@ public class ServerFacade {
             return new Gson().fromJson(inputStreamReader, Object.class);
         }
     }
+
+    public Map<String, List<ChessGame>> listGames(AuthData auth) throws Exception {
+        // Specify the desired endpoint
+        URI uri = new URI("http://localhost:" + port + "/game");
+        HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
+        http.setRequestMethod("GET");
+
+        // Specify that we are going to write out data
+        http.setDoOutput(true);
+
+        // Write out a header
+        http.addRequestProperty("Content-Type", "application/json");
+        http.addRequestProperty("Authorization", auth.getAuthToken());
+
+        // Make the request
+        http.connect();
+
+        // Output the response body
+        try (InputStream respBody = http.getInputStream()) {
+            InputStreamReader inputStreamReader = new InputStreamReader(respBody);
+            return new Gson().fromJson(inputStreamReader, Map.class);
+        }
+    }
+
+    public Object joinGames(AuthData auth, Integer gameID, game)
 
 
 }

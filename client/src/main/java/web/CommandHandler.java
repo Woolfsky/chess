@@ -1,13 +1,7 @@
 package web;
 
-import com.google.gson.Gson;
 import model.AuthData;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.Map;
+import ui.ChessRendering;
 
 public class CommandHandler {
     String[] parameters;
@@ -179,6 +173,9 @@ public class CommandHandler {
     }
 
     public String loggedInPlaying() {
+        ChessRendering render = new ChessRendering();
+//        render.main([]);
+
         if (parameters[0].equals("help")) {
             System.out.print("    logout - when you are done\n");
             System.out.print("    quit - to quit playing chess\n");

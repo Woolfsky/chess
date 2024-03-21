@@ -1,7 +1,11 @@
 package web;
 
+import chess.ChessGame;
 import model.AuthData;
 import ui.ChessRendering;
+
+import java.util.List;
+import java.util.Map;
 
 public class CommandHandler {
     String[] parameters;
@@ -110,6 +114,11 @@ public class CommandHandler {
         if (parameters[0].equals("list")) {
             try {
                 var games = facade.listGames(authData);
+
+//                for (var i : games.get("games")) {
+//                    System.out.print(i);
+//                }
+
                 System.out.println("Games:\n" + games.get("games"));
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
@@ -119,6 +128,10 @@ public class CommandHandler {
         if (parameters[0].equals("join")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
+
+                ChessRendering render = new ChessRendering();
+                render.render();
+
                 System.out.println("Joined game " + parameters[1]);
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
@@ -173,8 +186,6 @@ public class CommandHandler {
     }
 
     public String loggedInPlaying() {
-        ChessRendering render = new ChessRendering();
-//        render.main([]);
 
         if (parameters[0].equals("help")) {
             System.out.print("    logout - when you are done\n");

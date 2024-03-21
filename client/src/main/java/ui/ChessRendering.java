@@ -27,8 +27,18 @@ public class ChessRendering {
 
         drawChessBoardWhite(out);
 
-        out.print(SET_BG_COLOR_BLACK);
-        out.print(SET_TEXT_COLOR_WHITE);
+        resetColors(out);
+    }
+
+    public void render() {
+        chessBoard.resetBoard(); // change this in next phase
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
+        out.print(ERASE_SCREEN);
+
+        drawChessBoardWhite(out);
+
+        resetColors(out);
     }
 
     private static void drawChessBoardWhite(PrintStream out) {
@@ -41,6 +51,8 @@ public class ChessRendering {
         topRowWhite(out);
         middleRowsWhite(out);
         topRowWhite(out);
+
+        resetColors(out);
     }
 
     private static void topRowWhite(PrintStream out) {
@@ -148,6 +160,14 @@ public class ChessRendering {
         out.print(SET_BG_COLOR_WHITE);
         out.print(SET_TEXT_BOLD);
         out.print(SET_TEXT_COLOR_BLUE);
+    }
+
+    private static void resetColors(PrintStream out) {
+//        out.print(RESET_BG_COLOR);
+//        out.print(RESET_TEXT_BOLD_FAINT);
+//        out.print(RESET_TEXT_COLOR);
+        out.print(SET_BG_COLOR_WHITE);
+        out.print(SET_TEXT_COLOR_BLACK);
     }
 
 }

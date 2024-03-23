@@ -6,3 +6,6 @@ Test start process:
 
 GitHub<br>
 Revert to a previous version of your code with `git reset --hard <revision number>` followed by `git push origin main -f`
+
+SSH into MySQL:<br>
+`mysqlsh -u yourusername -pyourpassword --sql`

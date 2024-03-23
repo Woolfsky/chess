@@ -19,25 +19,12 @@ public class ChessRendering {
         // set chessBoard to the passed-in chess board in phase 6
     }
 
-    public static void main(String[] args) {
-        chessBoard.resetBoard(); // change this in next phase
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-        out.print(ERASE_SCREEN);
-
-        drawChessBoardWhite(out);
-
-        resetColors(out);
-    }
-
     public void render() {
         chessBoard.resetBoard(); // change this in next phase
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
-        out.print(ERASE_SCREEN);
-
+        resetColors(out);
         drawChessBoardWhite(out);
-
         resetColors(out);
     }
 
@@ -60,6 +47,7 @@ public class ChessRendering {
         setOutside(out);
         out.print(headers);
         setWhiteSquare(out);
+        resetColors(out);
         out.print("\n");
     }
 
@@ -68,6 +56,7 @@ public class ChessRendering {
         setOutside(out);
         out.print(headers);
         setWhiteSquare(out);
+        resetColors(out);
         out.print("\n");
     }
 
@@ -92,8 +81,9 @@ public class ChessRendering {
             }
             setOutside(out);
             out.print(sideLabels[r-1]);
-            setWhiteSquare(out);
+            resetColors(out);
             out.print("\n");
+            setWhiteSquare(out);
             backgroundWhite = !backgroundWhite;
         }
     }
@@ -119,8 +109,9 @@ public class ChessRendering {
             }
             setOutside(out);
             out.print(sideLabels[r-1]);
-            setWhiteSquare(out);
+            resetColors(out);
             out.print("\n");
+            setWhiteSquare(out);
             backgroundWhite = !backgroundWhite;
         }
     }
@@ -163,11 +154,7 @@ public class ChessRendering {
     }
 
     private static void resetColors(PrintStream out) {
-//        out.print(RESET_BG_COLOR);
-//        out.print(RESET_TEXT_BOLD_FAINT);
-//        out.print(RESET_TEXT_COLOR);
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
+        out.print("\u001B[0m");
     }
 
 }

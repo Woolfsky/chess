@@ -1,9 +1,11 @@
 package web;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import ui.ChessRendering;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -115,11 +117,21 @@ public class CommandHandler {
             try {
                 var games = facade.listGames(authData);
 
-//                for (var i : games.get("games")) {
-//                    System.out.print(i);
-//                }
+                Gson gson = new Gson();
+                ArrayList gamesList = gson.fromJson(String.valueOf(games.get("games")), ArrayList.class);
 
-                System.out.println("Games:\n" + games.get("games"));
+                System.out.println("Games:");
+                for (int i = 1; i <= gamesList.size(); i++) {
+                    String game = String.valueOf(gamesList.get(i-1));
+                    game = game.replace("{gameID=", "Game ID: ");
+                    game = game.replace("whiteUsername=", "White Username: ");
+                    game = game.replace("blackUsername=", "Black Username: ");
+                    game = game.replace("gameName=", "Game Name: ");
+                    game = game.replace("}", "");
+                    System.out.print("    " + i + ") " + game + "\n");
+                }
+
+//                System.out.println("Games:\n" + games.get("games"));
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -129,8 +141,8 @@ public class CommandHandler {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
-                ChessRendering render = new ChessRendering();
-                render.render();
+                ChessRendering rendering = new ChessRendering();
+                rendering.render();
 
                 System.out.println("Joined game " + parameters[1]);
                 return "LOGGED_IN: Playing";
@@ -141,6 +153,8 @@ public class CommandHandler {
         if (parameters[0].equals("observe")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
+                ChessRendering rendering = new ChessRendering();
+                rendering.render();
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
             } catch (Exception e) {

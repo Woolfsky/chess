@@ -23,15 +23,24 @@ public class ChessRendering {
 
     public ChessRendering(ChessBoard board, ChessGame.TeamColor perspective) {
         chessBoard = board;
-//        perspective
+        this.perspective = perspective;
     }
 
-    public void render() {
-        chessBoard.resetBoard(); // change this in next phase
+    public void renderBoth() {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        resetColors(out);
+        drawChessBoardBlack(out);
+        out.print("\n");
+        drawChessBoardWhite(out);
+        resetColors(out);
+    }
+
+    public void renderPerspective() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         resetColors(out);
-        drawChessBoardWhite(out);
+        if (perspective == ChessGame.TeamColor.BLACK) { drawChessBoardBlack(out); }
+        else { drawChessBoardWhite(out); }
         resetColors(out);
     }
 
@@ -67,18 +76,19 @@ public class ChessRendering {
     }
 
     private static void drawChessBoardWhite(PrintStream out) {
-        topRowBlack(out);
-        middleRowsBlack(out);
-        topRowBlack(out);
-
-        out.print("\n");
-
         topRowWhite(out);
         middleRowsWhite(out);
         topRowWhite(out);
-
         resetColors(out);
     }
+
+    private static void drawChessBoardBlack(PrintStream out) {
+        topRowBlack(out);
+        middleRowsBlack(out);
+        topRowBlack(out);
+        resetColors(out);
+    }
+
 
     private static void topRowWhite(PrintStream out) {
         String headers = "   " + " a " + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   ";

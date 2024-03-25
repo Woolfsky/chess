@@ -10,11 +10,10 @@ import java.util.List;
 public class CommandHandler implements WebSocketCommunicator.SocketListener {
     String[] parameters;
     String state;
-
     public ServerFacade facade;
-
     AuthData authData = null;
     ChessGame game = new ChessGame();
+    ChessGame.TeamColor color = null;
 
     public CommandHandler() {}
 
@@ -64,7 +63,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("quit")) {
             return "QUIT";
         }
-
         System.out.print("Invalid command. Choose one of the following:\n");
         System.out.print("    register <USERNAME> <PASSWORD> <EMAIL> - to create an account\n");
         System.out.print("    login <USERNAME> <PASSWORD> - to play chess\n");
@@ -109,7 +107,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("list")) {
             try {
                 var games = facade.listGames(authData);
-                Gson gson = new Gson();
                 List gamesList = games.get("games");
                 System.out.println("Games:");
                 for (int i = 1; i <= gamesList.size(); i++) {
@@ -119,23 +116,27 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                     game = game.replace("blackUsername=", "Black Username: ");
                     game = game.replace("gameName=", "Game Name: ");
                     game = game.replace("}", "");
-                    game = game.replaceAll(".0", "");
+                    game = game.replaceAll(".0,", ",");
                     System.out.print("    " + i + ") " + game + "\n");
                 }
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-
-
         }
         if (parameters[0].equals("join")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
                 // websocket join game, keep track of session
 
-                ChessRendering rendering = new ChessRendering(game.getBoard());
-                rendering.render();
+                assignColor();
+                ChessRendering rendering;
+                if (color == null) {
+                    rendering = new ChessRendering(game.getBoard());
+                } else {
+                    rendering = new ChessRendering(game.getBoard(), this.color);
+                }
+                rendering.renderPerspective();
 
                 System.out.println("Joined game " + parameters[1]);
                 return "LOGGED_IN: Playing";
@@ -147,7 +148,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
                 ChessRendering rendering = new ChessRendering(game.getBoard());
-                rendering.render();
+                rendering.renderPerspective();
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
             } catch (Exception e) {
@@ -174,7 +175,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("redraw")) {
             ChessRendering rendering = new ChessRendering(game.getBoard());
-            rendering.render();
+            rendering.renderPerspective();
             return "LOGGED_IN: Observing";
         }
         if (parameters[0].equals("leave")) {
@@ -209,7 +210,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("redraw")) {
             ChessRendering rendering = new ChessRendering(game.getBoard());
-            rendering.render();
+            rendering.renderPerspective();
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("resign")) {
@@ -228,6 +229,13 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         System.out.print("    leave - to leave the game\n");
         System.out.print("    help - to list possible commands\n");
         return state;
+    }
+
+    public void assignColor() {
+        if (parameters.length == 3) {
+            if (parameters[2].equals("WHITE")) { this.color = ChessGame.TeamColor.WHITE; }
+            else if (parameters[2].equals("BLACK")) { this.color = ChessGame.TeamColor.BLACK; }
+        }
     }
 
 

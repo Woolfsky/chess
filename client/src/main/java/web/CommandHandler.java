@@ -116,10 +116,8 @@ public class CommandHandler {
         if (parameters[0].equals("list")) {
             try {
                 var games = facade.listGames(authData);
-
                 Gson gson = new Gson();
                 ArrayList gamesList = gson.fromJson(String.valueOf(games.get("games")), ArrayList.class);
-
                 System.out.println("Games:");
                 for (int i = 1; i <= gamesList.size(); i++) {
                     String game = String.valueOf(gamesList.get(i-1));
@@ -128,10 +126,9 @@ public class CommandHandler {
                     game = game.replace("blackUsername=", "Black Username: ");
                     game = game.replace("gameName=", "Game Name: ");
                     game = game.replace("}", "");
+                    game = game.replaceAll(".0", "");
                     System.out.print("    " + i + ") " + game + "\n");
                 }
-
-//                System.out.println("Games:\n" + games.get("games"));
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -174,55 +171,63 @@ public class CommandHandler {
 
     public String loggedInObserving() {
         if (parameters[0].equals("help")) {
-            System.out.print("    logout - when you are done\n");
-            System.out.print("    quit - to quit playing chess\n");
+            System.out.print("    redraw - to regenerate the chess board\n");
+            System.out.print("    leave - to leave the game\n");
             System.out.print("    help - to list possible commands\n");
+            return "LOGGED_IN: Observing";
+        }
+        if (parameters[0].equals("redraw")) {
+            ChessRendering rendering = new ChessRendering();
+            rendering.render();
+            return "LOGGED_IN: Observing";
+        }
+        if (parameters[0].equals("leave")) {
             return "LOGGED_IN: Not playing";
         }
-        if (parameters[0].equals("quit")) {
-            return "QUIT";
-        }
-        if (parameters[0].equals("logout")) {
-            try {
-                facade.logout(authData);
-                authData = null;
-                System.out.println("Logged out");
-                return "LOGGED_OUT: Not playing";
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
         System.out.print("Invalid command. Choose one of the following:\n");
-        System.out.print("    logout - when you are done\n");
-        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    redraw - to regenerate the chess board\n");
+        System.out.print("    leave - to leave the game\n");
         System.out.print("    help - to list possible commands\n");
         return state;
     }
 
     public String loggedInPlaying() {
-
         if (parameters[0].equals("help")) {
-            System.out.print("    logout - when you are done\n");
-            System.out.print("    quit - to quit playing chess\n");
+            System.out.print("    move <move> - to move a chess piece\n");
+            System.out.print("    highlight <position> - to highlight the legal moves for a piece\n");
+            System.out.print("    redraw - to regenerate the chess board\n");
+            System.out.print("    resign - to forfeit the game\n");
+            System.out.print("    leave - to leave the game\n");
             System.out.print("    help - to list possible commands\n");
+            return "LOGGED_IN: Playing";
+        }
+        if (parameters[0].equals("move")) {
+            // make move functionality
+            return "LOGGED_IN: Playing";
+        }
+        if (parameters[0].equals("highlight")) {
+            // highlight functionality
+            return "LOGGED_IN: Playing";
+        }
+        if (parameters[0].equals("redraw")) {
+            ChessRendering rendering = new ChessRendering();
+            rendering.render();
+            return "LOGGED_IN: Playing";
+        }
+        if (parameters[0].equals("resign")) {
+            // resign functionality
+            return "LOGGED_IN: Playing";
+        }
+        if (parameters[0].equals("leave")) {
             return "LOGGED_IN: Not playing";
         }
-        if (parameters[0].equals("quit")) {
-            return "QUIT";
-        }
-        if (parameters[0].equals("logout")) {
-            try {
-                facade.logout(authData);
-                authData = null;
-                System.out.println("Logged out");
-                return "LOGGED_OUT: Not playing";
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-            }
-        }
+
         System.out.print("Invalid command. Choose one of the following:\n");
-        System.out.print("    logout - when you are done\n");
-        System.out.print("    quit - to quit playing chess\n");
+        System.out.print("    move <move> - to move a chess piece\n");
+        System.out.print("    highlight <position> - to highlight the legal moves for a piece\n");
+        System.out.print("    redraw - to regenerate the chess board\n");
+        System.out.print("    resign - to forfeit the game\n");
+        System.out.print("    leave - to leave the game\n");
         System.out.print("    help - to list possible commands\n");
         return state;
     }

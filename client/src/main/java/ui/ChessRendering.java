@@ -12,11 +12,11 @@ import static ui.EscapeSequences.*;
 
 public class ChessRendering {
 
-    static ChessBoard chessBoard = new ChessBoard();
+    static ChessBoard chessBoard;
     private static final int boardDimension = 10;
 
-    public ChessRendering() {
-        // set chessBoard to the passed-in chess board in phase 6
+    public ChessRendering(ChessBoard board) {
+        chessBoard = board;
     }
 
     public void render() {

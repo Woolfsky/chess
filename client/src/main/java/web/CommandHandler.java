@@ -1,5 +1,6 @@
 package web;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
@@ -16,6 +17,8 @@ public class CommandHandler {
     public ServerFacade facade;
 
     AuthData authData = null;
+    ChessGame game = new ChessGame();
+    ChessBoard board = new ChessBoard();
 
     public CommandHandler(String[] p, String s) {
         parameters = p;
@@ -138,7 +141,7 @@ public class CommandHandler {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
-                ChessRendering rendering = new ChessRendering();
+                ChessRendering rendering = new ChessRendering(board);
                 rendering.render();
 
                 System.out.println("Joined game " + parameters[1]);
@@ -150,7 +153,7 @@ public class CommandHandler {
         if (parameters[0].equals("observe")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
-                ChessRendering rendering = new ChessRendering();
+                ChessRendering rendering = new ChessRendering(board);
                 rendering.render();
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
@@ -177,7 +180,7 @@ public class CommandHandler {
             return "LOGGED_IN: Observing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering();
+            ChessRendering rendering = new ChessRendering(board);
             rendering.render();
             return "LOGGED_IN: Observing";
         }
@@ -210,7 +213,7 @@ public class CommandHandler {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering();
+            ChessRendering rendering = new ChessRendering(board);
             rendering.render();
             return "LOGGED_IN: Playing";
         }

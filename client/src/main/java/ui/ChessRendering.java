@@ -7,16 +7,23 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ui.EscapeSequences.*;
 
 public class ChessRendering {
 
     static ChessBoard chessBoard;
-    private static final int boardDimension = 10;
+    ChessGame.TeamColor perspective;
 
     public ChessRendering(ChessBoard board) {
         chessBoard = board;
+    }
+
+    public ChessRendering(ChessBoard board, ChessGame.TeamColor perspective) {
+        chessBoard = board;
+//        perspective
     }
 
     public void render() {
@@ -26,6 +33,37 @@ public class ChessRendering {
         resetColors(out);
         drawChessBoardWhite(out);
         resetColors(out);
+    }
+
+    public void highlight(String location) {
+        if (validPosition(location)) {
+            // print with the highlights
+
+        }
+    }
+
+    public boolean validPosition(String input) {
+        List<String> validLetters = new ArrayList<>();
+        List<String> validNumbers = new ArrayList<>();
+        validLetters.add("a");
+        validLetters.add("b");
+        validLetters.add("c");
+        validLetters.add("d");
+        validLetters.add("e");
+        validLetters.add("f");
+        validLetters.add("g");
+        validLetters.add("h");
+        validNumbers.add("1");
+        validNumbers.add("2");
+        validNumbers.add("3");
+        validNumbers.add("4");
+        validNumbers.add("5");
+        validNumbers.add("6");
+        validNumbers.add("7");
+        validNumbers.add("8");
+        return (input.length() == 2
+                && validLetters.contains(String.valueOf(input.charAt(0)))
+                && validNumbers.contains(String.valueOf(input.charAt(1))));
     }
 
     private static void drawChessBoardWhite(PrintStream out) {

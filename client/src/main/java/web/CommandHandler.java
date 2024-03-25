@@ -1,16 +1,13 @@
 package web;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import ui.ChessRendering;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class CommandHandler {
+public class CommandHandler implements WebSocketCommunicator.SocketListener {
     String[] parameters;
     String state;
 
@@ -18,13 +15,6 @@ public class CommandHandler {
 
     AuthData authData = null;
     ChessGame game = new ChessGame();
-    ChessBoard board = new ChessBoard();
-
-    public CommandHandler(String[] p, String s) {
-        parameters = p;
-        state = s;
-        facade = new ServerFacade(8080);
-    }
 
     public CommandHandler() {}
 
@@ -120,7 +110,7 @@ public class CommandHandler {
             try {
                 var games = facade.listGames(authData);
                 Gson gson = new Gson();
-                ArrayList gamesList = gson.fromJson(String.valueOf(games.get("games")), ArrayList.class);
+                List gamesList = games.get("games");
                 System.out.println("Games:");
                 for (int i = 1; i <= gamesList.size(); i++) {
                     String game = String.valueOf(gamesList.get(i-1));
@@ -136,12 +126,15 @@ public class CommandHandler {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
+
+
         }
         if (parameters[0].equals("join")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
+                // websocket join game, keep track of session
 
-                ChessRendering rendering = new ChessRendering(board);
+                ChessRendering rendering = new ChessRendering(game.getBoard());
                 rendering.render();
 
                 System.out.println("Joined game " + parameters[1]);
@@ -153,7 +146,7 @@ public class CommandHandler {
         if (parameters[0].equals("observe")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
-                ChessRendering rendering = new ChessRendering(board);
+                ChessRendering rendering = new ChessRendering(game.getBoard());
                 rendering.render();
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
@@ -180,7 +173,7 @@ public class CommandHandler {
             return "LOGGED_IN: Observing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering(board);
+            ChessRendering rendering = new ChessRendering(game.getBoard());
             rendering.render();
             return "LOGGED_IN: Observing";
         }
@@ -210,10 +203,12 @@ public class CommandHandler {
         }
         if (parameters[0].equals("highlight")) {
             // highlight functionality
+            ChessRendering rendering = new ChessRendering(game.getBoard());
+            rendering.highlight(parameters[1]);
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering(board);
+            ChessRendering rendering = new ChessRendering(game.getBoard());
             rendering.render();
             return "LOGGED_IN: Playing";
         }
@@ -236,4 +231,8 @@ public class CommandHandler {
     }
 
 
+    @Override
+    public void updateGame(ChessGame game) {
+        this.game = game;
+    }
 }

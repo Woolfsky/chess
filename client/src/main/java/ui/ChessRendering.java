@@ -1,28 +1,27 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static ui.EscapeSequences.*;
 
 public class ChessRendering {
 
-    static ChessBoard chessBoard;
     ChessGame.TeamColor perspective;
+    static ChessGame game;
+    static ChessBoard chessBoard;
 
-    public ChessRendering(ChessBoard board) {
-        chessBoard = board;
+    public ChessRendering(ChessGame game) {
+        chessBoard = game.getBoard();
+        this.game = game;
     }
 
-    public ChessRendering(ChessBoard board, ChessGame.TeamColor perspective) {
-        chessBoard = board;
+    public ChessRendering(ChessGame game, ChessGame.TeamColor perspective) {
+        chessBoard = game.getBoard();
+        this.game = game;
         this.perspective = perspective;
     }
 
@@ -46,8 +45,21 @@ public class ChessRendering {
 
     public void highlight(String location) {
         if (validPosition(location)) {
-            // print with the highlights
-
+            if (!checkValidHighlight(location)) { System.out.print("Invalid position: You may only highlight one of your pieces on the board\n"); renderPerspective(); return; }
+            var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+            if (perspective.equals(ChessGame.TeamColor.WHITE)) {
+                topRowWhite(out);
+                middleRowsWhite(out, location);
+                topRowWhite(out);
+            }
+            if (perspective.equals(ChessGame.TeamColor.BLACK)) {
+                topRowBlack(out);
+                middleRowsBlack(out, location);
+                topRowBlack(out);
+            }
+        } else {
+            System.out.print("Invalid position: You may only highlight one of your pieces on the board\n");
+            renderPerspective();
         }
     }
 
@@ -77,14 +89,14 @@ public class ChessRendering {
 
     private static void drawChessBoardWhite(PrintStream out) {
         topRowWhite(out);
-        middleRowsWhite(out);
+        middleRowsWhite(out, null);
         topRowWhite(out);
         resetColors(out);
     }
 
     private static void drawChessBoardBlack(PrintStream out) {
         topRowBlack(out);
-        middleRowsBlack(out);
+        middleRowsBlack(out, null);
         topRowBlack(out);
         resetColors(out);
     }
@@ -108,7 +120,18 @@ public class ChessRendering {
         out.print("\n");
     }
 
-    private static void middleRowsWhite(PrintStream out) {
+    private static void middleRowsWhite(PrintStream out, String location) {
+        List<List<Integer>> endPoints = new ArrayList<>();
+        ChessPosition p = new ChessPosition(-1,-1);
+
+        if (location != null) {
+            p = generatePosition(location);
+            Collection<ChessMove> moves = game.validMoves(p);
+            for (ChessMove m : moves) {
+                endPoints.add(Arrays.asList(m.getEndPosition().getRow(), m.getEndPosition().getColumn()));
+            }
+        }
+
         String[] sideLabels = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         boolean backgroundWhite = true;
         for (int r = 8; r > 0; r--) {
@@ -116,6 +139,21 @@ public class ChessRendering {
             out.print(sideLabels[r-1]);
             for (int c = 1; c < 9; c++) {
                 if (backgroundWhite) { setWhiteSquare(out); } else { setBlackSquare(out); }
+
+                if (location != null) {
+                    if (Arrays.asList(r, c).equals(Arrays.asList(p.getRow(), p.getColumn()))) {
+                        setHighlightPiece(out);
+                    }
+                    if (endPoints.contains(Arrays.asList(r, c))) {
+                        if (backgroundWhite) {
+                            setHighlightWhiteTile(out);
+                        }
+                        if (!backgroundWhite) {
+                            setHighlightBlackTile(out);
+                        }
+                    }
+                }
+
                 String slotValue = "   ";
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = chessBoard.getPiece(pos);
@@ -135,8 +173,42 @@ public class ChessRendering {
             backgroundWhite = !backgroundWhite;
         }
     }
+    
+    private static ChessPosition generatePosition(String location) {
+        Map<String, Integer> mapping = new HashMap<>();
+        mapping.put("a", 1);
+        mapping.put("b", 2);
+        mapping.put("c", 3);
+        mapping.put("d", 4);
+        mapping.put("e", 5);
+        mapping.put("f", 6);
+        mapping.put("g", 7);
+        mapping.put("h", 8);
+        Integer col = mapping.get(String.valueOf(location.charAt(0)));
+        Integer row = Character.getNumericValue(location.charAt(1));
+        return new ChessPosition(row, col);
+    }
 
-    private static void middleRowsBlack(PrintStream out) {
+    private boolean checkValidHighlight(String location) {
+        ChessPosition p = generatePosition(location);
+        ChessPiece piece = game.getBoard().getPiece(p);
+        if (piece == null) { return false; }
+        if (piece.getTeamColor() != this.perspective) { return false; }
+        return true;
+    }
+
+    private static void middleRowsBlack(PrintStream out, String location) {
+        List<List<Integer>> endPoints = new ArrayList<>();
+        ChessPosition p = new ChessPosition(-1,-1);
+
+        if (location != null) {
+            p = generatePosition(location);
+            Collection<ChessMove> moves = game.validMoves(p);
+            for (ChessMove m : moves) {
+                endPoints.add(Arrays.asList(m.getEndPosition().getRow(), m.getEndPosition().getColumn()));
+            }
+        }
+
         String[] sideLabels = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         boolean backgroundWhite = true;
         for (int r = 1; r < 9; r++) {
@@ -144,6 +216,21 @@ public class ChessRendering {
             out.print(sideLabels[r-1]);
             for (int c = 1; c < 9; c++) {
                 if (backgroundWhite) { setWhiteSquare(out); } else { setBlackSquare(out); }
+
+                if (location != null) {
+                    if (Arrays.asList(r, c).equals(Arrays.asList(p.getRow(), 9 - p.getColumn()))) {
+                        setHighlightPiece(out);
+                    }
+                    if (endPoints.contains(Arrays.asList(r, 9 - c))) {
+                        if (backgroundWhite) {
+                            setHighlightWhiteTile(out);
+                        }
+                        if (!backgroundWhite) {
+                            setHighlightBlackTile(out);
+                        }
+                    }
+                }
+
                 String slotValue = "   ";
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = chessBoard.getPiece(pos);
@@ -203,6 +290,24 @@ public class ChessRendering {
 
     private static void resetColors(PrintStream out) {
         out.print("\u001B[0m");
+    }
+
+    private static void setHighlightPiece(PrintStream out) {
+        out.print(SET_BG_COLOR_YELLOW);
+        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_TEXT_BOLD);
+    }
+
+    private static void setHighlightWhiteTile(PrintStream out) {
+        out.print(SET_BG_COLOR_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_TEXT_BOLD);
+    }
+
+    private static void setHighlightBlackTile(PrintStream out) {
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_TEXT_BOLD);
     }
 
 }

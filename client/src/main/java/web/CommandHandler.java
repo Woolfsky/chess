@@ -132,9 +132,9 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 assignColor();
                 ChessRendering rendering;
                 if (color == null) {
-                    rendering = new ChessRendering(game.getBoard());
+                    rendering = new ChessRendering(game);
                 } else {
-                    rendering = new ChessRendering(game.getBoard(), this.color);
+                    rendering = new ChessRendering(game, this.color);
                 }
                 rendering.renderPerspective();
 
@@ -147,7 +147,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("observe")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
-                ChessRendering rendering = new ChessRendering(game.getBoard());
+                ChessRendering rendering = new ChessRendering(game);
                 rendering.renderPerspective();
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
@@ -174,7 +174,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Observing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering(game.getBoard());
+            ChessRendering rendering = new ChessRendering(game);
             rendering.renderPerspective();
             return "LOGGED_IN: Observing";
         }
@@ -204,12 +204,12 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("highlight")) {
             // highlight functionality
-            ChessRendering rendering = new ChessRendering(game.getBoard());
+            ChessRendering rendering = new ChessRendering(game, this.color);
             rendering.highlight(parameters[1]);
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("redraw")) {
-            ChessRendering rendering = new ChessRendering(game.getBoard());
+            ChessRendering rendering = new ChessRendering(game, this.color);
             rendering.renderPerspective();
             return "LOGGED_IN: Playing";
         }

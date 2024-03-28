@@ -16,6 +16,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     ChessGame game = new ChessGame();
     ChessGame.TeamColor color = null;
     WebSocketCommunicator ws;
+    String username;
 
     public CommandHandler() {}
 
@@ -41,6 +42,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 AuthData auth = facade.register(parameters[1], parameters[2], parameters[3]);
                 authData = auth;
                 System.out.println("New user registered as " + parameters[1]);
+                username = parameters[1];
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
             }
@@ -51,6 +53,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 AuthData auth = facade.login(parameters[1], parameters[2]);
                 authData = auth;
                 System.out.println("Logged in as " + parameters[1]);
+                username = parameters[1];
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
             }
@@ -131,7 +134,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
                 // websocket join game, keep track of session
                 ws = new WebSocketCommunicator(this);
-                ws.joinPlayer(Integer.parseInt(parameters[1]), color);
+                ws.joinPlayer(Integer.parseInt(parameters[1]), color, username, authData.getAuthToken());
 
                 assignColor();
                 ChessRendering rendering;

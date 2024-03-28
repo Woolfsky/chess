@@ -3,6 +3,7 @@ package web;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.Endpoint;
@@ -34,9 +35,13 @@ public class WebSocketCommunicator extends Endpoint {
         });
     }
 
-    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor) throws IOException {
-        System.out.print("JOINED!!!! from WebSocketCommunicator\n");
-        this.session.getBasicRemote().sendText("JOINED!!!! from WebSocketCommunicator");
+    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException, EncodeException {
+        // create JoinPlayer object... pass that through (as a JSON string?)
+        JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, username, gameID, playerColor);
+        Gson gson = new Gson();
+        String jsonCommand = gson.toJson(joinCommand);
+//        this.session.getBasicRemote().sendObject(joinCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
     }
 
     public void joinObserver(Integer gameID) {}

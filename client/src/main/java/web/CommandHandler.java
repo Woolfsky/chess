@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import ui.ChessRendering;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     AuthData authData = null;
     ChessGame game = new ChessGame();
     ChessGame.TeamColor color = null;
+    WebSocketCommunicator ws;
 
     public CommandHandler() {}
 
@@ -128,6 +130,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
                 // websocket join game, keep track of session
+                ws = new WebSocketCommunicator(this);
+                ws.joinPlayer(Integer.parseInt(parameters[1]), color);
 
                 assignColor();
                 ChessRendering rendering;
@@ -199,11 +203,10 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("move")) {
-            // make move functionality
+            // implement make move functionality
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("highlight")) {
-            // highlight functionality
             ChessRendering rendering = new ChessRendering(game, this.color);
             rendering.highlight(parameters[1]);
             return "LOGGED_IN: Playing";
@@ -214,7 +217,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("resign")) {
-            // resign functionality
+            // implement resign functionality
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("leave")) {
@@ -242,5 +245,10 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     @Override
     public void updateGame(ChessGame game) {
         this.game = game;
+    }
+
+    @Override
+    public void notify(UserGameCommand gameCommand) {
+        System.out.print("Notified here in CommandHandler!!!");
     }
 }

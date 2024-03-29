@@ -7,14 +7,15 @@ import ui.ChessRendering;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.util.List;
+import java.util.Map;
 
 public class CommandHandler implements WebSocketCommunicator.SocketListener {
     String[] parameters;
     String state;
     public ServerFacade facade;
-    AuthData authData = null;
+    AuthData authData;
     ChessGame game = new ChessGame();
-    ChessGame.TeamColor color = null;
+    ChessGame.TeamColor color;
     WebSocketCommunicator ws;
     String username;
 
@@ -132,11 +133,14 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("join")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
-                // websocket join game, keep track of session
+
+                // update the game here
+//                getUpdatedGame(Integer.parseInt(parameters[1]));
+
                 ws = new WebSocketCommunicator(this);
+                assignColor();
                 ws.joinPlayer(Integer.parseInt(parameters[1]), color, username, authData.getAuthToken());
 
-                assignColor();
                 ChessRendering rendering;
                 if (color == null) {
                     rendering = new ChessRendering(game);
@@ -243,6 +247,23 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             else if (parameters[2].equals("BLACK")) { this.color = ChessGame.TeamColor.BLACK; }
         }
     }
+
+//    public ChessGame getUpdatedGame(int gameID) throws Exception {
+//        Map<String, List<ChessGame>> games = facade.listGames(authData);
+//        List<ChessGame> gamesList = games.get("games");
+//        for (ChessGame i : gamesList) {
+//            String gameString = String.valueOf(i);
+//            gameString = gameString.replaceAll(".0,", ",");
+//            gameString = gameString.replaceAll("\\{gameID=", "");
+//            String[] splitString = gameString.split(", ");
+//            String theGameID = splitString[0];
+//            if (Integer.parseInt(theGameID) == gameID) {
+////                System.out.println(i.getClass());
+////                System.out.println(i);
+//            }
+//        }
+//        return null;
+//    }
 
 
     @Override

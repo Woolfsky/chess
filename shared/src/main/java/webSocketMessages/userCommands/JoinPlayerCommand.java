@@ -27,4 +27,13 @@ public class JoinPlayerCommand extends UserGameCommand{
 
     @Override
     public String getUsername() { return this.username; }
+
+    @Override
+    public String toString() {
+        return "JoinPlayerCommand{" +
+                "gameID=" + gameID +
+                ", color=" + color +
+                ", username='" + username + '\'' +
+                '}';
+    }
 }

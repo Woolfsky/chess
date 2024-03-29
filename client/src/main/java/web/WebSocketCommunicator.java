@@ -3,6 +3,8 @@ package web;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.NotificationMessage;
+import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -28,19 +30,22 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
-                System.out.println("received a response from the server: " + message);
-                UserGameCommand gameCommand = new Gson().fromJson(message, UserGameCommand.class);
-                listener.notify(gameCommand);
+                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
+//                    listener.updateGame();
+                }
+                if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
+                    NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
+                    System.out.println(notificationMessage.getMessage());
+                }
             }
         });
     }
 
     public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException, EncodeException {
-        // create JoinPlayer object... pass that through (as a JSON string?)
         JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, username, gameID, playerColor);
         Gson gson = new Gson();
         String jsonCommand = gson.toJson(joinCommand);
-//        this.session.getBasicRemote().sendObject(joinCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 

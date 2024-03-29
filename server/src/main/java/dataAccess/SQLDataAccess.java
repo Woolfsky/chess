@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -73,8 +74,29 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public Integer newGame(String username, String gameName) throws DataAccessException {
-        String s = "INSERT INTO game (gameName) VALUES (\"" + gameName + "\");";
-        executeUpdate(s);
+        ChessGame blankGame = new ChessGame();
+        Gson gson = new Gson();
+        String jsonGame = gson.toJson(blankGame);
+
+
+//        String s = "INSERT INTO game (gameName, chessGame) VALUES (\"" + gameName + "\", \"" + jsonGame + "\");";
+//        executeUpdate(s);
+        String s_ = "INSERT INTO game (gameName, chessGame) VALUES (?, ?)";
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(s_)) {
+                preparedStatement.setString(1, gameName);
+                preparedStatement.setString(2, jsonGame);
+                preparedStatement.executeUpdate();
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
         String s2 = "SELECT gameID FROM game WHERE gameName = \"" + gameName + "\";";
         GameData g = executeGameQuery(s2);
         return g.getGameID();
@@ -149,7 +171,6 @@ public class SQLDataAccess implements DataAccess {
     public boolean executeUpdate(String statement) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-//                preparedStatement.setString(1, )
                 preparedStatement.executeUpdate();
                 return true;
             }

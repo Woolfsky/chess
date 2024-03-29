@@ -3,6 +3,7 @@ package web;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
 import ui.ChessRendering;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -112,18 +113,12 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("list")) {
             try {
-                var games = facade.listGames(authData);
-                List gamesList = games.get("games");
+                List<GameData> gamesList = facade.listGames(authData);
                 System.out.println("Games:");
                 for (int i = 1; i <= gamesList.size(); i++) {
-                    String game = String.valueOf(gamesList.get(i-1));
-                    game = game.replace("{gameID=", "Game ID: ");
-                    game = game.replace("whiteUsername=", "White Username: ");
-                    game = game.replace("blackUsername=", "Black Username: ");
-                    game = game.replace("gameName=", "Game Name: ");
-                    game = game.replace("}", "");
-                    game = game.replaceAll(".0,", ",");
-                    System.out.print("    " + i + ") " + game + "\n");
+                    GameData game = gamesList.get(i-1);
+                    int gameInt = (int) game.getGameID();
+                    System.out.print("    " + i + ") Game ID: " + gameInt + ", White Username: " + game.getWhiteUsername() + ", Black Username: " + game.getBlackUsername() + ", Game Name: " + game.getGameName() + "\n");
                 }
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
@@ -135,7 +130,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
                 // update the game here
-//                getUpdatedGame(Integer.parseInt(parameters[1]));
+                ChessGame g = getUpdatedGame(Integer.parseInt(parameters[1]));
+                updateGame(g);
 
                 ws = new WebSocketCommunicator(this);
                 assignColor();
@@ -150,6 +146,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 rendering.renderPerspective();
 
                 System.out.println("Joined game " + parameters[1]);
+
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -248,22 +245,19 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
     }
 
-//    public ChessGame getUpdatedGame(int gameID) throws Exception {
-//        Map<String, List<ChessGame>> games = facade.listGames(authData);
-//        List<ChessGame> gamesList = games.get("games");
-//        for (ChessGame i : gamesList) {
-//            String gameString = String.valueOf(i);
-//            gameString = gameString.replaceAll(".0,", ",");
-//            gameString = gameString.replaceAll("\\{gameID=", "");
-//            String[] splitString = gameString.split(", ");
-//            String theGameID = splitString[0];
-//            if (Integer.parseInt(theGameID) == gameID) {
-////                System.out.println(i.getClass());
-////                System.out.println(i);
-//            }
-//        }
-//        return null;
-//    }
+    public ChessGame getUpdatedGame(int gameID) throws Exception {
+        List<GameData> gamesList = facade.listGames(authData);
+        for (int i = 1; i <= gamesList.size(); i++) {
+            GameData game = gamesList.get(i-1);
+            int gameInt = (int) game.getGameID();
+            if (gameInt == gameID) {
+                String s = game.getGame();
+                Gson gson = new Gson();
+                return gson.fromJson(s, ChessGame.class);
+            }
+        }
+        return null;
+    }
 
 
     @Override

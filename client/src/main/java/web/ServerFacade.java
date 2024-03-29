@@ -3,6 +3,8 @@ package web;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthData;
+import model.GameData;
+import model.GameHolder;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -141,7 +143,7 @@ public class ServerFacade {
         }
     }
 
-    public Map<String, List<ChessGame>> listGames(AuthData auth) throws Exception {
+    public List<GameData> listGames(AuthData auth) throws Exception {
         // Specify the desired endpoint
         URI uri = new URI("http://localhost:" + port + "/game");
         HttpURLConnection http = (HttpURLConnection) uri.toURL().openConnection();
@@ -160,7 +162,10 @@ public class ServerFacade {
         // Output the response body
         try (InputStream respBody = http.getInputStream()) {
             InputStreamReader inputStreamReader = new InputStreamReader(respBody);
-            return new Gson().fromJson(inputStreamReader, Map.class);
+
+            GameHolder here = new Gson().fromJson(inputStreamReader, GameHolder.class);
+            List<GameData> h = here.games();
+            return h;
         }
     }
 

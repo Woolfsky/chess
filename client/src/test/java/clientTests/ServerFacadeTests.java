@@ -93,7 +93,7 @@ public class ServerFacadeTests {
     void listEmptyGames() throws Exception {
         AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
         var games = facade.listGames(auth);
-        assertTrue(games.get("games").isEmpty());
+        assertTrue(games.isEmpty());
     }
 
     @Test
@@ -101,7 +101,7 @@ public class ServerFacadeTests {
         AuthData auth = facade.register("testGuy", "password", "testguy@email.com");
         facade.createGame(auth, "testGame");
         var games = facade.listGames(auth);
-        assertFalse(games.get("games").isEmpty());
+        assertFalse(games.isEmpty());
     }
 
     @Test

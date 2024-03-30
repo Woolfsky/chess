@@ -38,15 +38,18 @@ public class ChessRendering {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         resetColors(out);
+        System.out.println();
         if (perspective == ChessGame.TeamColor.BLACK) { drawChessBoardBlack(out); }
         else { drawChessBoardWhite(out); }
         resetColors(out);
+        System.out.println();
     }
 
     public void highlight(String location) {
         if (validPosition(location)) {
             if (!checkValidHighlight(location)) { System.out.print("Invalid position: You may only highlight one of your pieces on the board\n"); renderPerspective(); return; }
             var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+            System.out.println();
             if (perspective.equals(ChessGame.TeamColor.WHITE)) {
                 topRowWhite(out);
                 middleRowsWhite(out, location);
@@ -57,6 +60,7 @@ public class ChessRendering {
                 middleRowsBlack(out, location);
                 topRowBlack(out);
             }
+            System.out.println();
         } else {
             System.out.print("Invalid position: You may only highlight one of your pieces on the board\n");
             renderPerspective();

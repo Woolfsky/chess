@@ -33,7 +33,7 @@ public class WebSocketCommunicator extends Endpoint {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
                     LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
-                    listener.updateRenderGame(loadGameMessage.getGameID());
+                    listener.updateRenderGame(loadGameMessage.getGame());
                 }
                 if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
                     NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
@@ -61,7 +61,7 @@ public class WebSocketCommunicator extends Endpoint {
 
 
     public interface SocketListener {
-        void updateRenderGame(int gameID);
+        void updateRenderGame(ChessGame game);
         void notify(UserGameCommand gameCommand);
     }
 

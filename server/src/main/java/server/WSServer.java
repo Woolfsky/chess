@@ -2,8 +2,11 @@ package server;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import dataAccess.DataAccessException;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.*;
+import service.GameService;
 import spark.Spark;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
@@ -12,12 +15,18 @@ import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
 @WebSocket
 public class WSServer {
-    Map<String, Session> sessionList = new HashMap<>();
+    private Map<String, Session> sessionList = new HashMap<>();
+    private GameService gService;
+
+    public WSServer(GameService gService) {
+        this.gService = gService;
+    }
 
     public static void main(String[] args) {
         Spark.port(8080);
@@ -38,8 +47,8 @@ public class WSServer {
         }
     }
 
-    public void joinCommand(JoinPlayerCommand command, Session session) throws IOException {
-        loadGame(command.getGameID(), session);
+    public void joinCommand(JoinPlayerCommand command, Session session) throws IOException, SQLException, DataAccessException {
+        loadGame(command.getAuthString(), command.getGameID(), session);
 
         String authToken = command.getAuthString();
         sessionList.put(authToken, session);
@@ -53,9 +62,12 @@ public class WSServer {
     }
 
 
-    public void loadGame(int gameID, Session session) throws IOException {
-        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
+    public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException {
         Gson gson = new Gson();
+        GameData gameData = gService.getGame(authToken, gameID);
+        ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
+
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, g);
         String jsonMessage = gson.toJson(loadGameMessage);
         session.getRemote().sendString(jsonMessage);
     }

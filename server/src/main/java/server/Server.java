@@ -1,6 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
+import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import dataAccess.MemoryDataAccess;
 import dataAccess.SQLDataAccess;
@@ -15,8 +16,12 @@ import java.util.*;
 
 public class Server {
 
-//    MemoryDataAccess dataAccess = new MemoryDataAccess();
-    SQLDataAccess dataAccess = new SQLDataAccess();
+//    DataAccess dataAccess = new MemoryDataAccess();
+    DataAccess dataAccess = new SQLDataAccess();
+
+    ClientService clientService = new ClientService(dataAccess);
+    GameService gameService = new GameService(dataAccess);
+    AdminService adminService = new AdminService(dataAccess);
 
     public Server() {}
 
@@ -24,7 +29,7 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        WSServer ws = new WSServer();
+        WSServer ws = new WSServer(gameService);
         Spark.webSocket("/connect", ws);
 
         Spark.delete("/db", this::delete);
@@ -71,7 +76,7 @@ public class Server {
 
     public Object delete(Request request, Response response) {
         try {
-            new AdminService(dataAccess).delete();
+            adminService.delete();
             response.status(200);
             return "{}";
         } catch (Exception ex) {
@@ -89,7 +94,7 @@ public class Server {
         }
 
         try {
-            AuthData authData = new ClientService(dataAccess).register(username, password, email);
+            AuthData authData = clientService.register(username, password, email);
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
@@ -105,7 +110,7 @@ public class Server {
         String password = req.get("password");
 
         try {
-            AuthData authData = new ClientService(dataAccess).login(username, password);
+            AuthData authData = clientService.login(username, password);
             response.status(200);
             return new Gson().toJson(authData);
         } catch (DataAccessException e) {
@@ -119,7 +124,7 @@ public class Server {
         String authToken = request.headers("Authorization");
 
         try {
-            new ClientService(dataAccess).logout(authToken);
+            clientService.logout(authToken);
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {
@@ -132,7 +137,7 @@ public class Server {
     public Object listGames(Request request, Response response) {
         String authToken = request.headers("Authorization");
         try {
-            List<GameData> games = new GameService(dataAccess).listGames(authToken);
+            List<GameData> games = gameService.listGames(authToken);
             Map<String, List<GameData>> m = new HashMap<>();
             m.put("games", games);
             response.status(200);
@@ -153,7 +158,7 @@ public class Server {
         }
 
         try {
-            Integer gameID = new GameService(dataAccess).createGame(authToken, gameName);
+            Integer gameID = gameService.createGame(authToken, gameName);
             Map<String, Integer> m = new HashMap<>();
             m.put("gameID", gameID);
             response.status(200);
@@ -177,7 +182,7 @@ public class Server {
         }
 
         try {
-            new GameService(dataAccess).joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
+            gameService.joinGame(authToken, playerColor, Integer.parseInt(String.valueOf(intGameID)));
             response.status(200);
             return "{}";
         } catch (DataAccessException e) {

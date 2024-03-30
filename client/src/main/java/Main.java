@@ -13,7 +13,9 @@ public class Main {
         String state = "LOGGED_OUT: Not playing";
 
         while (!state.equals("QUIT")) {
-            System.out.printf("[%s] >>> ", state);
+            if (!state.equals("LOGGED_IN: Playing")) {
+                System.out.printf("[%s] >>> ", state);
+            }
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
             var parameters = line.split(" ");

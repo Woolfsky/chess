@@ -233,30 +233,9 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
     }
 
-    public ChessGame getUpdatedGame(int gameID) throws Exception {
-        List<GameData> gamesList = facade.listGames(authData);
-        for (int i = 1; i <= gamesList.size(); i++) {
-            GameData game = gamesList.get(i-1);
-            int gameInt = (int) game.getGameID();
-            if (gameInt == gameID) {
-                String s = game.getGame();
-                Gson gson = new Gson();
-                return gson.fromJson(s, ChessGame.class);
-            }
-        }
-        return null;
-    }
-
-
     @Override
-    public void updateRenderGame(int gameID) {
-        ChessGame updated = this.game;
-        try {
-            updated = getUpdatedGame(gameID);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        this.game = updated;
+    public void updateRenderGame(ChessGame game) {
+        this.game = game;
         ChessRendering rendering = new ChessRendering(this.game);
         rendering.renderPerspective();
     }
@@ -265,4 +244,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     public void notify(UserGameCommand gameCommand) {
         System.out.print("Notified here in CommandHandler!!!");
     }
+
+    // new line before rendering the board
 }

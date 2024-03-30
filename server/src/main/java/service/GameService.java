@@ -59,4 +59,13 @@ public class GameService {
             return dAccess.addPlayer(gameID, username, playerColor);
         }
     }
+
+    public GameData getGame(String authToken, int gameID) throws DataAccessException, SQLException {
+        if (dAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
+        } else {
+            return dAccess.getGame(gameID);
+        }
+    }
+
 }

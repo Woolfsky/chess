@@ -39,25 +39,22 @@ public class WSServer {
     }
 
     public void joinCommand(JoinPlayerCommand command, Session session) throws IOException {
-
-        // FIRST, send a load game!!!!
-        loadGame("Load the game:)", session);
+        loadGame(command.getGameID(), session);
 
         String authToken = command.getAuthString();
         sessionList.put(authToken, session);
         String m = command.getUsername() + " joined game " + command.getGameID() + " as " + command.getTeamColor();
 
         for (String i : sessionList.keySet()) {
-                if (i != authToken) {
+                if (!i.equals(authToken)) {
                     notification(sessionList.get(i), m);
                 }
         }
     }
 
 
-
-    public void loadGame(String game, Session session) throws IOException {
-        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME);
+    public void loadGame(int gameID, Session session) throws IOException {
+        LoadGameMessage loadGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, gameID);
         Gson gson = new Gson();
         String jsonMessage = gson.toJson(loadGameMessage);
         session.getRemote().sendString(jsonMessage);

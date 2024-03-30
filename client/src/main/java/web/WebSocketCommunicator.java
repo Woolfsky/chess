@@ -3,6 +3,7 @@ package web;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinPlayerCommand;
@@ -14,7 +15,6 @@ import javax.websocket.Session;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Scanner;
 
 public class WebSocketCommunicator extends Endpoint {
     SocketListener listener;
@@ -32,7 +32,8 @@ public class WebSocketCommunicator extends Endpoint {
             public void onMessage(String message) {
                 ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
                 if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)) {
-//                    listener.updateGame();
+                    LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                    listener.updateRenderGame(loadGameMessage.getGameID());
                 }
                 if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)) {
                     NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
@@ -60,7 +61,7 @@ public class WebSocketCommunicator extends Endpoint {
 
 
     public interface SocketListener {
-        void updateGame(ChessGame game);
+        void updateRenderGame(int gameID);
         void notify(UserGameCommand gameCommand);
     }
 

@@ -9,7 +9,7 @@ import static ui.EscapeSequences.*;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Welcome to Chess! Type help to get started.");
-        CommandHandler handler = new CommandHandler();;
+        CommandHandler handler = new CommandHandler();
         String state = "LOGGED_OUT: Not playing";
 
         while (!state.equals("QUIT")) {

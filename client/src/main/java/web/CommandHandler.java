@@ -127,23 +127,11 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("join")) {
             try {
+                assignColor();
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
-                // update the game here
-                ChessGame g = getUpdatedGame(Integer.parseInt(parameters[1]));
-                updateGame(g);
-
                 ws = new WebSocketCommunicator(this);
-                assignColor();
                 ws.joinPlayer(Integer.parseInt(parameters[1]), color, username, authData.getAuthToken());
-
-                ChessRendering rendering;
-                if (color == null) {
-                    rendering = new ChessRendering(game);
-                } else {
-                    rendering = new ChessRendering(game, this.color);
-                }
-                rendering.renderPerspective();
 
                 System.out.println("Joined game " + parameters[1]);
 
@@ -261,8 +249,16 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
 
 
     @Override
-    public void updateGame(ChessGame game) {
-        this.game = game;
+    public void updateRenderGame(int gameID) {
+        ChessGame updated = this.game;
+        try {
+            updated = getUpdatedGame(gameID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        this.game = updated;
+        ChessRendering rendering = new ChessRendering(this.game);
+        rendering.renderPerspective();
     }
 
     @Override

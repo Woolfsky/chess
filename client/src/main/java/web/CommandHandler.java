@@ -143,8 +143,10 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("observe")) {
             try {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
-                ChessRendering rendering = new ChessRendering(game);
-                rendering.renderPerspective();
+
+                ws = new WebSocketCommunicator(this);
+                ws.joinObserver(Integer.parseInt(parameters[1]), username, authData.getAuthToken());
+
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
             } catch (Exception e) {

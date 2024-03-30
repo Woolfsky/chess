@@ -11,6 +11,7 @@ import spark.Spark;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.JoinObserverCommand;
 import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -37,6 +38,7 @@ public class WSServer {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws Exception {
         JoinPlayerCommand joinPlayerCommand;
+        JoinObserverCommand joinObserverCommand;
         Gson gson = new Gson();
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType commandType = command.getCommandType();
@@ -44,6 +46,10 @@ public class WSServer {
         if (commandType.equals(UserGameCommand.CommandType.JOIN_PLAYER)) {
             joinPlayerCommand = gson.fromJson(message, JoinPlayerCommand.class);
             joinCommand(joinPlayerCommand, session);
+        }
+        if (commandType.equals(UserGameCommand.CommandType.JOIN_OBSERVER)) {
+            joinObserverCommand = gson.fromJson(message, JoinObserverCommand.class);
+            joinObserverCommand(joinObserverCommand, session);
         }
     }
 
@@ -61,6 +67,19 @@ public class WSServer {
         }
     }
 
+    public void joinObserverCommand(JoinObserverCommand command, Session session) throws IOException, SQLException, DataAccessException {
+        loadGame(command.getAuthString(), command.getGameID(), session);
+
+        String authToken = command.getAuthString();
+        sessionList.put(authToken, session);
+        String m = command.getUsername() + " joined game " + command.getGameID() + " as an observer";
+
+        for (String i : sessionList.keySet()) {
+            if (!i.equals(authToken)) {
+                notification(sessionList.get(i), m);
+            }
+        }
+    }
 
     public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException {
         Gson gson = new Gson();

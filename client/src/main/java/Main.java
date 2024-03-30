@@ -13,7 +13,7 @@ public class Main {
         String state = "LOGGED_OUT: Not playing";
 
         while (!state.equals("QUIT")) {
-            if (!state.equals("LOGGED_IN: Playing")) {
+            if (!state.equals("LOGGED_IN: Playing") && !state.equals("LOGGED_IN: Observing")) {
                 System.out.printf("[%s] >>> ", state);
             }
             Scanner scanner = new Scanner(System.in);

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
+import webSocketMessages.userCommands.JoinObserverCommand;
 import webSocketMessages.userCommands.JoinPlayerCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -17,8 +18,9 @@ import java.io.IOException;
 import java.net.URI;
 
 public class WebSocketCommunicator extends Endpoint {
-    SocketListener listener;
+    private SocketListener listener;
     public Session session;
+    private Gson gson = new Gson();;
 
     public WebSocketCommunicator(SocketListener socketListener) throws Exception {
         this.listener = socketListener;
@@ -43,14 +45,17 @@ public class WebSocketCommunicator extends Endpoint {
         });
     }
 
-    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException, EncodeException {
+    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException {
         JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, username, gameID, playerColor);
-        Gson gson = new Gson();
         String jsonCommand = gson.toJson(joinCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-    public void joinObserver(Integer gameID) {}
+    public void joinObserver(Integer gameID, String username, String authToken) throws IOException {
+        JoinObserverCommand joinObserverCommand = new JoinObserverCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, username, gameID);
+        String jsonCommand = gson.toJson(joinObserverCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
+    }
 
     public void makeMove(Integer gameID, ChessMove move) {}
 

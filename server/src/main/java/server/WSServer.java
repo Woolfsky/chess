@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
 import model.GameData;
@@ -13,6 +14,7 @@ import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinObserverCommand;
 import webSocketMessages.userCommands.JoinPlayerCommand;
+import webSocketMessages.userCommands.MakeMoveCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
@@ -39,6 +41,7 @@ public class WSServer {
     public void onMessage(Session session, String message) throws Exception {
         JoinPlayerCommand joinPlayerCommand;
         JoinObserverCommand joinObserverCommand;
+        MakeMoveCommand makeMoveCommand;
         Gson gson = new Gson();
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType commandType = command.getCommandType();
@@ -50,6 +53,10 @@ public class WSServer {
         if (commandType.equals(UserGameCommand.CommandType.JOIN_OBSERVER)) {
             joinObserverCommand = gson.fromJson(message, JoinObserverCommand.class);
             joinObserverCommand(joinObserverCommand, session);
+        }
+        if (commandType.equals(UserGameCommand.CommandType.MAKE_MOVE)) {
+            makeMoveCommand = gson.fromJson(message, MakeMoveCommand.class);
+            makeMoveCommand(makeMoveCommand, session);
         }
     }
 
@@ -78,6 +85,31 @@ public class WSServer {
             if (!i.equals(authToken)) {
                 notification(sessionList.get(i), m);
             }
+        }
+    }
+
+    public void makeMoveCommand(MakeMoveCommand command, Session session) throws IOException, SQLException, DataAccessException {
+        loadGame(command.getAuthString(), command.getGameID(), session);
+
+        Gson gson = new Gson();
+        GameData gameData = gService.getGame(command.getAuthToken(), command.getGameID());
+        ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
+        try {
+            g.makeMove(command.getMove());
+            String authToken = command.getAuthString();
+            sessionList.put(authToken, session);
+            String m = command.getUsername() + " made a move from " + command.getMove().getStartPosition().toString() + " to " + command.getMove().getEndPosition().toString();
+
+            // send out the LOAD_GAMEs to everyone here.....
+
+            for (String i : sessionList.keySet()) {
+                if (!i.equals(authToken)) {
+                    notification(sessionList.get(i), m);
+                }
+            }
+        } catch (InvalidMoveException e) {
+            // create an error message and send that to the root client.......
+
         }
     }
 

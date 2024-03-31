@@ -3,11 +3,13 @@ package web;
 import chess.ChessGame;
 import chess.ChessMove;
 import com.google.gson.Gson;
+import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
 import webSocketMessages.userCommands.JoinObserverCommand;
 import webSocketMessages.userCommands.JoinPlayerCommand;
+import webSocketMessages.userCommands.MakeMoveCommand;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.websocket.Endpoint;
@@ -41,6 +43,10 @@ public class WebSocketCommunicator extends Endpoint {
                     NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
                     System.out.println(notificationMessage.getMessage());
                 }
+                if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
+                    ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                    System.out.println(errorMessage.getMessage());
+                }
             }
         });
     }
@@ -57,7 +63,11 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-    public void makeMove(Integer gameID, ChessMove move) {}
+    public void makeMove(Integer gameID, ChessMove move, String authToken) throws IOException {
+        MakeMoveCommand makeMoveCommand = new MakeMoveCommand(authToken, UserGameCommand.CommandType.MAKE_MOVE, gameID, move);
+        String jsonCommand = gson.toJson(makeMoveCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
+    }
 
     public void leave(Integer gameID) {}
 

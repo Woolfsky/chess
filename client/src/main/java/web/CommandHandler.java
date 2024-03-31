@@ -1,24 +1,29 @@
 package web;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import ui.ChessRendering;
 import webSocketMessages.userCommands.UserGameCommand;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CommandHandler implements WebSocketCommunicator.SocketListener {
-    String[] parameters;
-    String state;
+    private String[] parameters;
+    private String state;
     public ServerFacade facade;
-    AuthData authData;
-    ChessGame game = new ChessGame();
-    ChessGame.TeamColor color;
-    WebSocketCommunicator ws;
-    String username;
+    private AuthData authData;
+    private ChessGame game = new ChessGame();
+    private ChessGame.TeamColor color;
+    private WebSocketCommunicator ws;
+    private String username;
+    private int gameID;
 
     public CommandHandler() {}
 
@@ -128,6 +133,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         if (parameters[0].equals("join")) {
             try {
                 assignColor();
+                assignGameID();
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
                 ws = new WebSocketCommunicator(this);
@@ -197,7 +203,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("move")) {
-            // implement make move functionality
+            ChessMove move = parseMove(parameters[1]);
+            ws.makeMove(this.gameID, move, authData.getAuthToken());
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("highlight")) {
@@ -235,6 +242,64 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
     }
 
+    public void assignGameID() {
+        if (parameters.length == 3) {
+            this.gameID = Integer.parseInt(parameters[1]);
+        }
+    }
+
+    public ChessMove parseMove(String rawMove) {
+        if (rawMove.length() == 4) { // this is a no-promotion move... do we need to implement a promotion move? what do they pass in?
+            if (validPosition(rawMove.substring(0,2)) && validPosition(rawMove.substring(2,4))) {
+                ChessPosition start = generatePosition(rawMove.substring(0,2));
+                ChessPosition end = generatePosition(rawMove.substring(2,4));
+                return new ChessMove(start, end, null);
+            }
+        } else {
+            // throw some error, invalid move
+        }
+        return null;
+    }
+
+    public boolean validPosition(String input) {
+        List<String> validLetters = new ArrayList<>();
+        List<String> validNumbers = new ArrayList<>();
+        validLetters.add("a");
+        validLetters.add("b");
+        validLetters.add("c");
+        validLetters.add("d");
+        validLetters.add("e");
+        validLetters.add("f");
+        validLetters.add("g");
+        validLetters.add("h");
+        validNumbers.add("1");
+        validNumbers.add("2");
+        validNumbers.add("3");
+        validNumbers.add("4");
+        validNumbers.add("5");
+        validNumbers.add("6");
+        validNumbers.add("7");
+        validNumbers.add("8");
+        return (input.length() == 2
+                && validLetters.contains(String.valueOf(input.charAt(0)))
+                && validNumbers.contains(String.valueOf(input.charAt(1))));
+    }
+
+    private static ChessPosition generatePosition(String location) {
+        Map<String, Integer> mapping = new HashMap<>();
+        mapping.put("a", 1);
+        mapping.put("b", 2);
+        mapping.put("c", 3);
+        mapping.put("d", 4);
+        mapping.put("e", 5);
+        mapping.put("f", 6);
+        mapping.put("g", 7);
+        mapping.put("h", 8);
+        Integer col = mapping.get(String.valueOf(location.charAt(0)));
+        Integer row = Character.getNumericValue(location.charAt(1));
+        return new ChessPosition(row, col);
+    }
+
     @Override
     public void updateRenderGame(ChessGame game) {
         this.game = game;
@@ -247,5 +312,4 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         System.out.print("Notified here in CommandHandler!!!");
     }
 
-    // new line before rendering the board
 }

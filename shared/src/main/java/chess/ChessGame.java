@@ -99,10 +99,6 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-//        if (gameOver) {
-//            throw new InvalidMoveException("The game is over");
-//        }
-
         ChessPosition startPos = move.getStartPosition();
 
         // prevent a wrong turn
@@ -146,9 +142,6 @@ public class ChessGame {
             setTeamTurn(TeamColor.WHITE);
         }
 
-//        if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)) {
-//            this.gameOver = true;
-//        }
     }
 
     public boolean isKing(TeamColor teamColor) {
@@ -350,6 +343,8 @@ public class ChessGame {
         return this.board;
     }
 
-//    public boolean getGameOverStatus() { return this.gameOver; }
+    public void setGameOverStatus(boolean toWhat) { this.gameOver = toWhat; }
+
+    public boolean getGameOverStatus() { return this.gameOver; }
 }
 

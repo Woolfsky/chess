@@ -14,10 +14,7 @@ import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserverCommand;
-import webSocketMessages.userCommands.JoinPlayerCommand;
-import webSocketMessages.userCommands.MakeMoveCommand;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -47,6 +44,8 @@ public class WSServer {
         JoinPlayerCommand joinPlayerCommand;
         JoinObserverCommand joinObserverCommand;
         MakeMoveCommand makeMoveCommand;
+        ResignCommand resignCommand;
+
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType commandType = command.getCommandType();
 
@@ -61,6 +60,10 @@ public class WSServer {
         if (commandType.equals(UserGameCommand.CommandType.MAKE_MOVE)) {
             makeMoveCommand = gson.fromJson(message, MakeMoveCommand.class);
             makeMoveCommand(makeMoveCommand, session);
+        }
+        if (commandType.equals(UserGameCommand.CommandType.RESIGN)) {
+            resignCommand = gson.fromJson(message, ResignCommand.class);
+            resignCommand(resignCommand, session);
         }
     }
 
@@ -126,7 +129,7 @@ public class WSServer {
             ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
             String username = cService.getUsername(command.getAuthString());
             verifyCorrectMover(gameData, g, username);
-//            verifyGameNotOver(g);
+            verifyGameNotOver(g);
             g.makeMove(command.getMove());
             this.gService.setGame(gameData.getGameID(), g);
 
@@ -144,10 +147,33 @@ public class WSServer {
                     notification(sessionList.get(i), m);
                 }
             }
+
+            endGameIfNeeded(g, gameData);
         } catch (Exception e) {
             error(session, e.getMessage());
         }
     }
+
+    public void resignCommand(ResignCommand command, Session session) throws IOException {
+        try {
+            GameData gameData = gService.getGame(command.getAuthString(), command.getGameID());
+            ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
+            verifyGameNotOver(g);
+            verifyNotObserver(command, gameData);
+            g.setGameOverStatus(true);
+            this.gService.setGame(gameData.getGameID(), g);
+
+            String username = cService.getUsername(command.getAuthString());
+            String m = username + " resigned from the game";
+
+            for (String i : sessionList.keySet()) {
+                notification(sessionList.get(i), m);
+            }
+
+        } catch (Exception e) {
+            error(session, e.getMessage());
+        }
+    };
 
     public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
         GameData gameData = gService.getGame(authToken, gameID);
@@ -183,6 +209,20 @@ public class WSServer {
         }
     }
 
+    public void endGameIfNeeded(ChessGame g, GameData gameData) throws DataAccessException {
+        if (g.isInCheckmate(ChessGame.TeamColor.WHITE) || g.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            g.setGameOverStatus(true);
+            this.gService.setGame(gameData.getGameID(), g);
+        }
+    }
+
+    public void verifyNotObserver(ResignCommand command, GameData gameData) throws SQLException, DataAccessException, InvalidMoveException {
+        String commandingUsername = cService.getUsername(command.getAuthString());
+        if (!commandingUsername.equals(gameData.getWhiteUsername()) && !commandingUsername.equals(gameData.getBlackUsername())) {
+            throw new InvalidMoveException("Observer cannot resign");
+        }
+    }
+
     public void verifyNotStealingSpot(Session s, JoinPlayerCommand command, GameData gameData, String username) throws InvalidMoveException, IOException {
         if (command.getPlayerColor() != null) {
             if (command.getPlayerColor().equals(ChessGame.TeamColor.WHITE)) {
@@ -201,7 +241,7 @@ public class WSServer {
     }
 
     public void verifyGameNotOver(ChessGame game) throws InvalidMoveException {
-        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+        if (game.getGameOverStatus()) {
             throw new InvalidMoveException("Game is over");
         }
     }

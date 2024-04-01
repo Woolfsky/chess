@@ -7,10 +7,7 @@ import webSocketMessages.serverMessages.ErrorMessage;
 import webSocketMessages.serverMessages.LoadGameMessage;
 import webSocketMessages.serverMessages.NotificationMessage;
 import webSocketMessages.serverMessages.ServerMessage;
-import webSocketMessages.userCommands.JoinObserverCommand;
-import webSocketMessages.userCommands.JoinPlayerCommand;
-import webSocketMessages.userCommands.MakeMoveCommand;
-import webSocketMessages.userCommands.UserGameCommand;
+import webSocketMessages.userCommands.*;
 
 import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
@@ -51,13 +48,13 @@ public class WebSocketCommunicator extends Endpoint {
         });
     }
 
-    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException {
+    public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String authToken) throws IOException {
         JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
         String jsonCommand = gson.toJson(joinCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-    public void joinObserver(Integer gameID, String username, String authToken) throws IOException {
+    public void joinObserver(Integer gameID, String authToken) throws IOException {
         JoinObserverCommand joinObserverCommand = new JoinObserverCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, gameID);
         String jsonCommand = gson.toJson(joinObserverCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
@@ -71,7 +68,11 @@ public class WebSocketCommunicator extends Endpoint {
 
     public void leave(Integer gameID) {}
 
-    public void resign(Integer gameID) {}
+    public void resign(Integer gameID, String authToken) throws IOException {
+        ResignCommand resignCommand = new ResignCommand(authToken, UserGameCommand.CommandType.RESIGN, gameID);
+        String jsonCommand = gson.toJson(resignCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
+    }
 
 
 

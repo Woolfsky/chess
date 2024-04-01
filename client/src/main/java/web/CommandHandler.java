@@ -23,7 +23,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     private ChessGame game = new ChessGame();
     private ChessGame.TeamColor color;
     private WebSocketCommunicator ws;
-    private String username;
     private int gameID;
 
     public CommandHandler() {}
@@ -50,7 +49,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 AuthData auth = facade.register(parameters[1], parameters[2], parameters[3]);
                 authData = auth;
                 System.out.println("New user registered as " + parameters[1]);
-                username = parameters[1];
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
             }
@@ -61,7 +59,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 AuthData auth = facade.login(parameters[1], parameters[2]);
                 authData = auth;
                 System.out.println("Logged in as " + parameters[1]);
-                username = parameters[1];
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
             }
@@ -138,7 +135,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), parameters[2]);
 
                 ws = new WebSocketCommunicator(this);
-                ws.joinPlayer(Integer.parseInt(parameters[1]), color, username, authData.getAuthToken());
+                ws.joinPlayer(Integer.parseInt(parameters[1]), color, authData.getAuthToken());
 
                 System.out.println("Joined game " + parameters[1]);
 
@@ -152,7 +149,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
 
                 ws = new WebSocketCommunicator(this);
-                ws.joinObserver(Integer.parseInt(parameters[1]), username, authData.getAuthToken());
+                ws.joinObserver(Integer.parseInt(parameters[1]), authData.getAuthToken());
 
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
@@ -211,7 +208,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
-
         }
         if (parameters[0].equals("highlight")) {
             ChessRendering rendering = new ChessRendering(game, this.color);
@@ -224,8 +220,12 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("resign")) {
-            // implement resign functionality
-            return "LOGGED_IN: Playing";
+            try {
+                ws.resign(this.gameID, authData.getAuthToken());
+                return "LOGGED_IN: Playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
         if (parameters[0].equals("leave")) {
             return "LOGGED_IN: Not playing";

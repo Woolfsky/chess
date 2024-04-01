@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataAccess.DataAccess;
 import dataAccess.DataAccessException;
 import model.GameData;
@@ -66,6 +67,10 @@ public class GameService {
         } else {
             return dAccess.getGame(gameID);
         }
+    }
+
+    public void setGame(int gameID, ChessGame g) throws DataAccessException {
+        dAccess.setGame(gameID, g);
     }
 
 }

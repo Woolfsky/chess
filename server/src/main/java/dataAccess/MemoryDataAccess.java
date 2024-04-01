@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -72,5 +73,12 @@ public class MemoryDataAccess implements DataAccess {
         GameData updatedGameData = gameData.addPlayerToRecord(playerColor, username);
         gameDataMap.put(gameID, updatedGameData);
         return true;
-    };
+    }
+
+    @Override
+    public void setGame(int gameID, ChessGame game) throws DataAccessException {
+
+    }
+
+    ;
 }

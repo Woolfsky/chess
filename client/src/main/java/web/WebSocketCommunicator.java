@@ -52,13 +52,13 @@ public class WebSocketCommunicator extends Endpoint {
     }
 
     public void joinPlayer(Integer gameID, ChessGame.TeamColor playerColor, String username, String authToken) throws IOException {
-        JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, username, gameID, playerColor);
+        JoinPlayerCommand joinCommand = new JoinPlayerCommand(authToken, UserGameCommand.CommandType.JOIN_PLAYER, gameID, playerColor);
         String jsonCommand = gson.toJson(joinCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
     public void joinObserver(Integer gameID, String username, String authToken) throws IOException {
-        JoinObserverCommand joinObserverCommand = new JoinObserverCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, username, gameID);
+        JoinObserverCommand joinObserverCommand = new JoinObserverCommand(authToken, UserGameCommand.CommandType.JOIN_OBSERVER, gameID);
         String jsonCommand = gson.toJson(joinObserverCommand);
         this.session.getBasicRemote().sendText(jsonCommand);
     }

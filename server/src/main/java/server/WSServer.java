@@ -1,7 +1,6 @@
 package server;
 
 import chess.ChessGame;
-import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataAccess.DataAccessException;
@@ -53,7 +52,7 @@ public class WSServer {
 
         if (commandType.equals(UserGameCommand.CommandType.JOIN_PLAYER)) {
             joinPlayerCommand = gson.fromJson(message, JoinPlayerCommand.class);
-            joinCommand(joinPlayerCommand, session);
+            joinPlayerCommand(joinPlayerCommand, session);
         }
         if (commandType.equals(UserGameCommand.CommandType.JOIN_OBSERVER)) {
             joinObserverCommand = gson.fromJson(message, JoinObserverCommand.class);
@@ -65,44 +64,76 @@ public class WSServer {
         }
     }
 
-    public void joinCommand(JoinPlayerCommand command, Session session) throws IOException, SQLException, DataAccessException {
-        loadGame(command.getAuthString(), command.getGameID(), session);
+    @OnWebSocketError public void onError(Throwable throwable) {
+        throwable.printStackTrace();
+    }
 
-        String authToken = command.getAuthString();
-        sessionList.put(authToken, session);
-        String m = command.getUsername() + " joined game " + command.getGameID() + " as " + command.getTeamColor();
+    @OnWebSocketClose public void onClose(Session session, int statusCode, String reason) {
+        sessionList.values().removeIf(value -> value.equals(session));
+    }
 
-        for (String i : sessionList.keySet()) {
+    public void joinPlayerCommand(JoinPlayerCommand command, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
+        try {
+            verifyGameExists(command);
+            verifyNotEmptyGame(command);
+            verifyAuth(command);
+            verifyJoinedGame(command);
+            String username = cService.getUsername(command.getAuthString());
+            GameData gameData = gService.getGame(command.getAuthString(), command.getGameID());
+            verifyNotStealingSpot(session, command, gameData, username);
+
+            loadGame(command.getAuthString(), command.getGameID(), session);
+
+            String authToken = command.getAuthString();
+            sessionList.put(authToken, session);
+            String m = username + " joined game " + command.getGameID() + " as " + command.getPlayerColor();
+
+            for (String i : sessionList.keySet()) {
                 if (!i.equals(authToken)) {
                     notification(sessionList.get(i), m);
                 }
+            }
+        } catch (Exception e) {
+            error(session, e.getMessage());
         }
+
     }
 
     public void joinObserverCommand(JoinObserverCommand command, Session session) throws IOException, SQLException, DataAccessException {
-        loadGame(command.getAuthString(), command.getGameID(), session);
+        try {
+            verifyJoinObserver(command);
+            String username = cService.getUsername(command.getAuthString());
+            loadGame(command.getAuthString(), command.getGameID(), session);
 
-        String authToken = command.getAuthString();
-        sessionList.put(authToken, session);
-        String m = command.getUsername() + " joined game " + command.getGameID() + " as an observer";
+            String authToken = command.getAuthString();
+            sessionList.put(authToken, session);
+            String m = username + " joined game " + command.getGameID() + " as an observer";
 
-        for (String i : sessionList.keySet()) {
-            if (!i.equals(authToken)) {
-                notification(sessionList.get(i), m);
+            for (String i : sessionList.keySet()) {
+                if (!i.equals(authToken)) {
+                    notification(sessionList.get(i), m);
+                }
             }
+        } catch (Exception e) {
+            error(session, e.getMessage());
         }
+
     }
 
     public void makeMoveCommand(MakeMoveCommand command, Session session) throws IOException, SQLException, DataAccessException {
-        GameData gameData = gService.getGame(command.getAuthString(), command.getGameID());
-        ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
         try {
-            verifyCorrectMover(gameData, g, command);
-            verifyGameNotOver(g);
+            GameData gameData = gService.getGame(command.getAuthString(), command.getGameID());
+            ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
+            String username = cService.getUsername(command.getAuthString());
+            verifyCorrectMover(gameData, g, username);
+//            verifyGameNotOver(g);
             g.makeMove(command.getMove());
+            this.gService.setGame(gameData.getGameID(), g);
+
             String authToken = command.getAuthString();
             sessionList.put(authToken, session);
-            String m = command.getUsername() + " made a move from " + command.getMove().getStartPosition().toString() + " to " + command.getMove().getEndPosition().toString();
+
+            String m = username + " made a move from " + command.getMove().getStartPosition().toString() + " to " + command.getMove().getEndPosition().toString();
 
             for (String s : sessionList.keySet()) {
                 loadGame(s, gameData.getGameID(), sessionList.get(s));
@@ -113,12 +144,12 @@ public class WSServer {
                     notification(sessionList.get(i), m);
                 }
             }
-        } catch (InvalidMoveException e) {
-            error(session, "Invalid move");
+        } catch (Exception e) {
+            error(session, e.getMessage());
         }
     }
 
-    public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException {
+    public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
         GameData gameData = gService.getGame(authToken, gameID);
         ChessGame g = gson.fromJson(gameData.getGame(), ChessGame.class);
 
@@ -139,21 +170,82 @@ public class WSServer {
         session.getRemote().sendString(jsonMessage);
     }
 
-    public void verifyCorrectMover(GameData gData, ChessGame game, MakeMoveCommand command) throws InvalidMoveException, SQLException, DataAccessException {
+
+    public void verifyCorrectMover(GameData gData, ChessGame game, String username) throws InvalidMoveException, SQLException, DataAccessException {
         if (game.getTeamTurn() == ChessGame.TeamColor.WHITE) {
-            if (!cService.getUsername(command.getAuthString()).equals(gData.getWhiteUsername())) {
+            if (!username.equals(gData.getWhiteUsername())) {
                 throw new InvalidMoveException("Invalid move, not your turn");
             }
         } else if (game.getTeamTurn() == ChessGame.TeamColor.BLACK) {
-            if (!cService.getUsername(command.getAuthString()).equals(gData.getBlackUsername())) {
+            if (!username.equals(gData.getBlackUsername())) {
                 throw new InvalidMoveException("Invalid move, not your turn");
             }
         }
     }
 
+    public void verifyNotStealingSpot(Session s, JoinPlayerCommand command, GameData gameData, String username) throws InvalidMoveException, IOException {
+        if (command.getPlayerColor() != null) {
+            if (command.getPlayerColor().equals(ChessGame.TeamColor.WHITE)) {
+                if (gameData.getWhiteUsername() != null && !gameData.getWhiteUsername().equals(username)) {
+                    throw new InvalidMoveException("Can't take another player's spot in the game");
+                }
+            } else if (command.getPlayerColor().equals(ChessGame.TeamColor.BLACK)) {
+                if (gameData.getBlackUsername() != null && !gameData.getBlackUsername().equals(username)) {
+                    throw new InvalidMoveException("Can't take another player's spot in the game");
+                }
+            }
+        } else {
+            throw new InvalidMoveException("Must enter a team color");
+        }
+
+    }
+
     public void verifyGameNotOver(ChessGame game) throws InvalidMoveException {
-        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) | game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)) {
             throw new InvalidMoveException("Game is over");
         }
+    }
+
+    public void verifyGameExists(JoinPlayerCommand command) throws SQLException, DataAccessException, InvalidMoveException {
+        if (gService.getGame(command.getAuthString(), command.getGameID()) == null) {
+            throw new InvalidMoveException("Game does not exist");
+        }
+    }
+
+    public void verifyJoinedGame(JoinPlayerCommand command) throws SQLException, DataAccessException, InvalidMoveException {
+        GameData gameData = gService.getGame(command.getAuthString(), command.getGameID());
+        String username = cService.getUsername(command.getAuthString());
+        if (command.getPlayerColor().equals(ChessGame.TeamColor.WHITE)) {
+            if (!gameData.getWhiteUsername().equals(username)) {
+                throw new InvalidMoveException("Player never joined game");
+            }
+        } else if (command.getPlayerColor().equals(ChessGame.TeamColor.BLACK)) {
+            if (!gameData.getBlackUsername().equals(username)) {
+                throw new InvalidMoveException("Player never joined game");
+            }
+        }
+
+    }
+
+    public void verifyNotEmptyGame(JoinPlayerCommand command) throws InvalidMoveException {
+        if (command.getPlayerColor() == null) {
+            throw new InvalidMoveException("Must enter a team color");
+        }
+    }
+
+    public void verifyAuth(JoinPlayerCommand command) throws SQLException, DataAccessException, InvalidMoveException {
+        if (cService.getUsername(command.getAuthString()) == null) {
+            throw new InvalidMoveException("Not authorized");
+        }
+    }
+
+    public void verifyJoinObserver(JoinObserverCommand command) throws InvalidMoveException, SQLException, DataAccessException {
+        if (cService.getUsername(command.getAuthString()) == null) {
+            throw new InvalidMoveException("Not authorized");
+        }
+        if (gService.getGame(command.getAuthString(), command.getGameID()) == null) {
+            throw new InvalidMoveException("Game does not exist");
+        }
+
     }
 }

@@ -13,7 +13,7 @@ public class ChessGame {
 
     ChessBoard board;
     TeamColor teamTurn;
-//    boolean gameOver = false;
+    boolean gameOver = false;
 
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
@@ -99,6 +99,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+//        if (gameOver) {
+//            throw new InvalidMoveException("The game is over");
+//        }
+
         ChessPosition startPos = move.getStartPosition();
 
         // prevent a wrong turn
@@ -141,6 +145,10 @@ public class ChessGame {
         } else {
             setTeamTurn(TeamColor.WHITE);
         }
+
+//        if (isInCheckmate(TeamColor.WHITE) || isInCheckmate(TeamColor.BLACK)) {
+//            this.gameOver = true;
+//        }
     }
 
     public boolean isKing(TeamColor teamColor) {
@@ -300,7 +308,6 @@ public class ChessGame {
         // check if other pieces can block the check
         if (isThereAPieceThatCanBlockCheck(teamColor)) { return false; }
 
-//        gameOver = true;
         return true;
     }
 
@@ -345,3 +352,4 @@ public class ChessGame {
 
 //    public boolean getGameOverStatus() { return this.gameOver; }
 }
+

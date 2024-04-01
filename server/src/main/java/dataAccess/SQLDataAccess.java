@@ -73,6 +73,25 @@ public class SQLDataAccess implements DataAccess {
         return executeListGamesQuery(s);
     };
 
+    public void setGame(int gameID, ChessGame game) throws DataAccessException {
+        String s_ = "UPDATE game SET chessGame = ? WHERE gameID = ?";
+        Gson gson = new Gson();
+        String stringGame = gson.toJson(game);
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(s_)) {
+                preparedStatement.setString(1, stringGame);
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Integer newGame(String username, String gameName) throws DataAccessException {
         ChessGame blankGame = new ChessGame();
         Gson gson = new Gson();

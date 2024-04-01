@@ -1,5 +1,6 @@
 package dataAccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -28,4 +29,6 @@ public interface DataAccess {
     GameData getGame(Integer gameID) throws DataAccessException;
 
     boolean addPlayer(Integer gameID, String username, String playerColor) throws DataAccessException;
+
+    void setGame(int gameID, ChessGame game) throws DataAccessException;
 }

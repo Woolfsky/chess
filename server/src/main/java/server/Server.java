@@ -29,7 +29,7 @@ public class Server {
         Spark.port(desiredPort);
         Spark.staticFiles.location("web");
 
-        WSServer ws = new WSServer(gameService);
+        WSServer ws = new WSServer(gameService, clientService);
         Spark.webSocket("/connect", ws);
 
         Spark.delete("/db", this::delete);

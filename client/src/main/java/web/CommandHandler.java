@@ -9,6 +9,7 @@ import model.GameData;
 import ui.ChessRendering;
 import webSocketMessages.userCommands.UserGameCommand;
 
+import javax.imageio.IIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -203,9 +204,14 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("move")) {
-            ChessMove move = parseMove(parameters[1]);
-            ws.makeMove(this.gameID, move, authData.getAuthToken());
-            return "LOGGED_IN: Playing";
+            try {
+                ChessMove move = parseMove(parameters[1]);
+                ws.makeMove(this.gameID, move, authData.getAuthToken());
+                return "LOGGED_IN: Playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
         }
         if (parameters[0].equals("highlight")) {
             ChessRendering rendering = new ChessRendering(game, this.color);

@@ -45,7 +45,7 @@ public class WebSocketCommunicator extends Endpoint {
                 }
                 if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.ERROR)) {
                     ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
-                    System.out.println(errorMessage.getMessage());
+                    System.out.println(errorMessage.getErrorMessage());
                 }
             }
         });

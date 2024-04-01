@@ -13,6 +13,7 @@ public class ChessGame {
 
     ChessBoard board;
     TeamColor teamTurn;
+//    boolean gameOver = false;
 
     public ChessGame() {
         setTeamTurn(TeamColor.WHITE);
@@ -299,6 +300,7 @@ public class ChessGame {
         // check if other pieces can block the check
         if (isThereAPieceThatCanBlockCheck(teamColor)) { return false; }
 
+//        gameOver = true;
         return true;
     }
 
@@ -340,4 +342,6 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return this.board;
     }
+
+//    public boolean getGameOverStatus() { return this.gameOver; }
 }

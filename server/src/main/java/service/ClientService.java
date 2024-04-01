@@ -55,4 +55,12 @@ public class ClientService {
             return dAccess.deleteAuth(authToken);
         }
     }
+
+    public String getUsername(String authToken) throws SQLException, DataAccessException {
+        if (dAccess.getAuth(authToken) == null) {
+            throw new DataAccessException("Tried to retrieve an authData object for a username not in the system.");
+        } else {
+            return dAccess.getAuth(authToken).getUsername();
+        }
+    }
 }

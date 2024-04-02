@@ -173,7 +173,8 @@ public class WSServer {
                 }
             }
 
-            endGameIfNeeded(g, gameData);
+            handleCheckMate(g, sessionList, gameData);
+            announceCheck(g, sessionList, gameData);
         } catch (Exception e) {
             error(session, e.getMessage());
         }
@@ -256,10 +257,43 @@ public class WSServer {
         }
     }
 
-    public void endGameIfNeeded(ChessGame g, GameData gameData) throws DataAccessException {
-        if (g.isInCheckmate(ChessGame.TeamColor.WHITE) || g.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+    public void handleCheckMate(ChessGame g, Map<String, Session> sessionList, GameData gameData) throws DataAccessException, IOException {
+        if (g.isInCheckmate(ChessGame.TeamColor.WHITE)) {
+            String w = gameData.getWhiteUsername();
+            String b = gameData.getBlackUsername();
+            String m = w + " is in checkmate, " + b + " has won!";
+            for (String i : sessionList.keySet()) {
+                notification(sessionList.get(i), m);
+            }
             g.setGameOverStatus(true);
             this.gService.setGame(gameData.getGameID(), g);
+        } else if (g.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            String w = gameData.getWhiteUsername();
+            String b = gameData.getBlackUsername();
+            String m = b + " is in checkmate, " + w + " has won!";
+            for (String i : sessionList.keySet()) {
+                notification(sessionList.get(i), m);
+            }
+            g.setGameOverStatus(true);
+            this.gService.setGame(gameData.getGameID(), g);
+        }
+    }
+
+    public void announceCheck(ChessGame g, Map<String, Session> sessionList, GameData gameData) throws IOException {
+        if (!g.isInCheckmate(ChessGame.TeamColor.WHITE) && !g.isInCheckmate(ChessGame.TeamColor.BLACK)) {
+            if (g.isInCheck(ChessGame.TeamColor.WHITE)) {
+                String w = gameData.getWhiteUsername();
+                String m = w + " is in check";
+                for (String i : sessionList.keySet()) {
+                    notification(sessionList.get(i), m);
+                }
+            } if (g.isInCheck(ChessGame.TeamColor.BLACK)) {
+                String b = gameData.getBlackUsername();
+                String m = b + " is in check";
+                for (String i : sessionList.keySet()) {
+                    notification(sessionList.get(i), m);
+                }
+            }
         }
     }
 

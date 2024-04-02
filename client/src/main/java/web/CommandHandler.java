@@ -11,6 +11,7 @@ import ui.ChessRendering;
 import webSocketMessages.userCommands.UserGameCommand;
 
 import javax.imageio.IIOException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -151,6 +152,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("observe")) {
             try {
+                assignObservingGameID();
                 facade.joinGame(authData, Integer.parseInt(parameters[1]), null);
 
                 ws = new WebSocketCommunicator(this);
@@ -187,7 +189,12 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             return "LOGGED_IN: Observing";
         }
         if (parameters[0].equals("leave")) {
-            return "LOGGED_IN: Not playing";
+            try {
+                ws.leave(this.gameID, authData.getAuthToken());
+                return "LOGGED_IN: Not playing";
+            } catch (Exception e) {
+                System.out.println("Unable to leave");
+            }
         }
         System.out.print("Invalid command. Choose one of the following:\n");
         System.out.print("    redraw - to regenerate the chess board\n");
@@ -216,7 +223,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 ws.makeMove(this.gameID, move, authData.getAuthToken());
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Invalid move");
                 return "LOGGED_IN: Playing";
             }
@@ -240,7 +246,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 ws.resign(this.gameID, authData.getAuthToken());
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Unable to resign");
                 return "LOGGED_IN: Playing";
             }
@@ -250,7 +255,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 ws.leave(this.gameID, authData.getAuthToken());
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Unable to leave");
             }
 
@@ -275,6 +279,11 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
 
     public void assignGameID() {
         if (parameters.length == 3) {
+            this.gameID = Integer.parseInt(parameters[1]);
+        }
+    }
+    public void assignObservingGameID() {
+        if (parameters.length == 2) {
             this.gameID = Integer.parseInt(parameters[1]);
         }
     }

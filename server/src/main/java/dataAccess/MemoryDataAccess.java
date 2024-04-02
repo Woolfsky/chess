@@ -80,5 +80,10 @@ public class MemoryDataAccess implements DataAccess {
 
     }
 
+    @Override
+    public void removePlayer(int gameID, ChessGame.TeamColor color) throws DataAccessException {
+
+    }
+
     ;
 }

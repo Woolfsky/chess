@@ -73,4 +73,14 @@ public class GameService {
         dAccess.setGame(gameID, g);
     }
 
+    public void removePlayer(int gameID, String authToken, String username) throws DataAccessException, SQLException {
+        GameData g = getGame(authToken, gameID);
+        ChessGame.TeamColor color = null;
+        if (g.getWhiteUsername() != null &&  g.getWhiteUsername().equals(username)) { color = ChessGame.TeamColor.WHITE; }
+        else if (g.getBlackUsername() != null && g.getBlackUsername().equals(username)) { color = ChessGame.TeamColor.BLACK; }
+        if (color != null) {
+            dAccess.removePlayer(gameID, color);
+        }
+    }
+
 }

@@ -23,7 +23,7 @@ import java.util.Map;
 
 @WebSocket
 public class WSServer {
-    private Map<String, Session> sessionList = new HashMap<>();
+    private Map<Integer, Map<String, Session>> allSessions = new HashMap<>();
     private final GameService gService;
     private final ClientService cService;
     private final Gson gson = new Gson();
@@ -45,6 +45,7 @@ public class WSServer {
         JoinObserverCommand joinObserverCommand;
         MakeMoveCommand makeMoveCommand;
         ResignCommand resignCommand;
+        LeaveCommand leaveCommand;
 
         UserGameCommand command = gson.fromJson(message, UserGameCommand.class);
         UserGameCommand.CommandType commandType = command.getCommandType();
@@ -65,15 +66,19 @@ public class WSServer {
             resignCommand = gson.fromJson(message, ResignCommand.class);
             resignCommand(resignCommand, session);
         }
+        if (commandType.equals(UserGameCommand.CommandType.LEAVE)) {
+            leaveCommand = gson.fromJson(message, LeaveCommand.class);
+            leaveCommand(leaveCommand, session);
+        }
     }
 
     @OnWebSocketError public void onError(Throwable throwable) {
         throwable.printStackTrace();
     }
 
-    @OnWebSocketClose public void onClose(Session session, int statusCode, String reason) {
-        sessionList.values().removeIf(value -> value.equals(session));
-    }
+//    @OnWebSocketClose public void onClose(Session session, int statusCode, String reason) {
+//        sessionList.values().removeIf(value -> value.equals(session));
+//    }
 
     public void joinPlayerCommand(JoinPlayerCommand command, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
         try {
@@ -88,9 +93,19 @@ public class WSServer {
             loadGame(command.getAuthString(), command.getGameID(), session);
 
             String authToken = command.getAuthString();
-            sessionList.put(authToken, session);
+
+            if (allSessions.containsKey(command.getGameID())) {
+                Map<String, Session> innerMap = allSessions.get(command.getGameID());
+                innerMap.put(authToken, session);
+            } else {
+                Map<String, Session> innerMap = new HashMap<>();
+                innerMap.put(authToken, session);
+                allSessions.put(command.getGameID(), innerMap);
+            }
+
             String m = username + " joined game " + command.getGameID() + " as " + command.getPlayerColor();
 
+            Map<String, Session> sessionList = allSessions.get(command.getGameID());
             for (String i : sessionList.keySet()) {
                 if (!i.equals(authToken)) {
                     notification(sessionList.get(i), m);
@@ -109,9 +124,17 @@ public class WSServer {
             loadGame(command.getAuthString(), command.getGameID(), session);
 
             String authToken = command.getAuthString();
-            sessionList.put(authToken, session);
+            if (allSessions.containsKey(command.getGameID())) {
+                Map<String, Session> innerMap = allSessions.get(command.getGameID());
+                innerMap.put(authToken, session);
+            } else {
+                Map<String, Session> innerMap = new HashMap<>();
+                innerMap.put(authToken, session);
+                allSessions.put(command.getGameID(), innerMap);
+            }
             String m = username + " joined game " + command.getGameID() + " as an observer";
 
+            Map<String, Session> sessionList = allSessions.get(command.getGameID());
             for (String i : sessionList.keySet()) {
                 if (!i.equals(authToken)) {
                     notification(sessionList.get(i), m);
@@ -134,6 +157,7 @@ public class WSServer {
             this.gService.setGame(gameData.getGameID(), g);
 
             String authToken = command.getAuthString();
+            Map<String, Session> sessionList = allSessions.get(command.getGameID());
             sessionList.put(authToken, session);
 
             String m = username + " made a move from " + command.getMove().getStartPosition().toString() + " to " + command.getMove().getEndPosition().toString();
@@ -166,6 +190,7 @@ public class WSServer {
             String username = cService.getUsername(command.getAuthString());
             String m = username + " resigned from the game";
 
+            Map<String, Session> sessionList = allSessions.get(command.getGameID());
             for (String i : sessionList.keySet()) {
                 notification(sessionList.get(i), m);
             }
@@ -173,7 +198,28 @@ public class WSServer {
         } catch (Exception e) {
             error(session, e.getMessage());
         }
-    };
+    }
+
+    public void leaveCommand(LeaveCommand command, Session session) throws IOException {
+        try {
+            String username = cService.getUsername(command.getAuthString());
+            gService.removePlayer(command.getGameID(), command.getAuthString(), username);
+
+            String m = username + " has left the game";
+
+            Map<String, Session> sessionList = allSessions.get(command.getGameID());
+            sessionList.remove(command.getAuthString());
+
+            for (String i : sessionList.keySet()) {
+                if (!i.equals(command.getAuthString())) {
+                    notification(sessionList.get(i), m);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            error(session, e.getMessage());
+        }
+    }
 
     public void loadGame(String authToken, int gameID, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
         GameData gameData = gService.getGame(authToken, gameID);

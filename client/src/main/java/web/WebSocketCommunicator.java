@@ -15,6 +15,7 @@ import javax.websocket.Session;
 import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
+import java.rmi.dgc.Lease;
 
 public class WebSocketCommunicator extends Endpoint {
     private SocketListener listener;
@@ -66,7 +67,11 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-    public void leave(Integer gameID) {}
+    public void leave(Integer gameID, String authToken) throws IOException {
+        LeaveCommand leaveCommand = new LeaveCommand(authToken, UserGameCommand.CommandType.LEAVE, gameID);
+        String jsonCommand = gson.toJson(leaveCommand);
+        this.session.getBasicRemote().sendText(jsonCommand);
+    }
 
     public void resign(Integer gameID, String authToken) throws IOException {
         ResignCommand resignCommand = new ResignCommand(authToken, UserGameCommand.CommandType.RESIGN, gameID);

@@ -92,6 +92,28 @@ public class SQLDataAccess implements DataAccess {
         }
     }
 
+    @Override
+    public void removePlayer(int gameID, ChessGame.TeamColor color) throws DataAccessException {
+        String s_;
+        if (color.equals(ChessGame.TeamColor.WHITE)) {
+            s_ = "UPDATE game SET whiteUsername = null WHERE gameID = ?";
+        } else {
+            s_ = "UPDATE game SET blackUsername = null WHERE gameID = ?";
+        }
+
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(s_)) {
+                preparedStatement.setInt(1, gameID);
+                preparedStatement.executeUpdate();
+            }
+        } catch (DataAccessException e) {
+            System.out.printf("Error in trying to delete SQL data: " + e.getMessage());
+            throw new DataAccessException("Unable to delete data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Integer newGame(String username, String gameName) throws DataAccessException {
         ChessGame blankGame = new ChessGame();
         Gson gson = new Gson();

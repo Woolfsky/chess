@@ -31,4 +31,6 @@ public interface DataAccess {
     boolean addPlayer(Integer gameID, String username, String playerColor) throws DataAccessException;
 
     void setGame(int gameID, ChessGame game) throws DataAccessException;
+
+    void removePlayer(int gameID, ChessGame.TeamColor color) throws DataAccessException;
 }

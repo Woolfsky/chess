@@ -228,7 +228,13 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             }
         }
         if (parameters[0].equals("leave")) {
-            return "LOGGED_IN: Not playing";
+            try {
+                ws.leave(this.gameID, authData.getAuthToken());
+                return "LOGGED_IN: Not playing";
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
         }
 
         System.out.print("Invalid command. Choose one of the following:\n");

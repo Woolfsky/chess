@@ -4,14 +4,10 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
-import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import ui.ChessRendering;
-import webSocketMessages.userCommands.UserGameCommand;
 
-import javax.imageio.IIOException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -104,7 +100,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Logged out");
                 return "LOGGED_OUT: Not playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Unable to logout");
             }
         }
@@ -114,7 +109,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Created game " + parameters[1]);
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Invalid command, follow the format: create <name>");
             }
         }
@@ -129,7 +123,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 }
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Invalid command, simply type list");
             }
         }
@@ -146,7 +139,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
 
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Invalid join command, follow the format: join <game id> <player color>");
             }
         }
@@ -161,7 +153,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
                 System.out.println("Invalid observe command, follow the format: observe <game id>");
             }
         }
@@ -257,7 +248,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
             } catch (Exception e) {
                 System.out.println("Unable to leave");
             }
-
         }
 
         System.out.print("Invalid command. Choose one of the following:\n");
@@ -290,9 +280,9 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
 
     public ChessMove parseMove(String rawMove) throws InvalidMoveException {
         if (rawMove.length() == 4) { // this is a no-promotion move... do we need to implement a promotion move? what do they pass in?
-            if (validPosition(rawMove.substring(0,2)) && validPosition(rawMove.substring(2,4))) {
-                ChessPosition start = generatePosition(rawMove.substring(0,2));
-                ChessPosition end = generatePosition(rawMove.substring(2,4));
+            if (validPositionCommandHandler(rawMove.substring(0,2)) && validPositionCommandHandler(rawMove.substring(2,4))) {
+                ChessPosition start = generatePositionCommandHandler(rawMove.substring(0,2));
+                ChessPosition end = generatePositionCommandHandler(rawMove.substring(2,4));
                 if (game.getBoard().getPiece(start) == null) {
                     throw new InvalidMoveException("Invalid move, that board position is empty");
                 }
@@ -304,17 +294,11 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         return null;
     }
 
-    public boolean validPosition(String input) {
-        List<String> validLetters = new ArrayList<>();
-        List<String> validNumbers = new ArrayList<>();
-        validLetters.add("a");
-        validLetters.add("b");
-        validLetters.add("c");
-        validLetters.add("d");
-        validLetters.add("e");
-        validLetters.add("f");
-        validLetters.add("g");
-        validLetters.add("h");
+    public boolean validPositionCommandHandler(String input) {
+        List<String> validLetters;
+        validLetters = new ArrayList<>();
+        List<String> validNumbers;
+        validNumbers = new ArrayList<>();
         validNumbers.add("1");
         validNumbers.add("2");
         validNumbers.add("3");
@@ -323,21 +307,30 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         validNumbers.add("6");
         validNumbers.add("7");
         validNumbers.add("8");
+        validLetters.add("a");
+        validLetters.add("b");
+        validLetters.add("c");
+        validLetters.add("d");
+        validLetters.add("e");
+        validLetters.add("f");
+        validLetters.add("g");
+        validLetters.add("h");
         return (input.length() == 2
                 && validLetters.contains(String.valueOf(input.charAt(0)))
                 && validNumbers.contains(String.valueOf(input.charAt(1))));
     }
 
-    private static ChessPosition generatePosition(String location) {
-        Map<String, Integer> mapping = new HashMap<>();
-        mapping.put("a", 1);
-        mapping.put("b", 2);
-        mapping.put("c", 3);
-        mapping.put("d", 4);
-        mapping.put("e", 5);
-        mapping.put("f", 6);
-        mapping.put("g", 7);
+    private ChessPosition generatePositionCommandHandler(String location) {
+        Map<String, Integer> mapping;
+        mapping = new HashMap<>();
         mapping.put("h", 8);
+        mapping.put("g", 7);
+        mapping.put("f", 6);
+        mapping.put("e", 5);
+        mapping.put("d", 4);
+        mapping.put("c", 3);
+        mapping.put("b", 2);
+        mapping.put("a", 1);
         Integer col = mapping.get(String.valueOf(location.charAt(0)));
         Integer row = Character.getNumericValue(location.charAt(1));
         return new ChessPosition(row, col);
@@ -348,11 +341,6 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         this.game = game;
         ChessRendering rendering = new ChessRendering(this.game, color);
         rendering.renderPerspective();
-    }
-
-    @Override
-    public void notify(UserGameCommand gameCommand) {
-        System.out.print("Notified here in CommandHandler!!!");
     }
 
 }

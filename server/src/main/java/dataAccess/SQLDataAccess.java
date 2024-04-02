@@ -74,12 +74,12 @@ public class SQLDataAccess implements DataAccess {
     };
 
     public void setGame(int gameID, ChessGame game) throws DataAccessException {
-        String s_ = "UPDATE game SET chessGame = ? WHERE gameID = ?";
+        String littleString = "UPDATE game SET chessGame = ? WHERE gameID = ?";
         Gson gson = new Gson();
         String stringGame = gson.toJson(game);
 
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(s_)) {
+            try (var preparedStatement = conn.prepareStatement(littleString)) {
                 preparedStatement.setString(1, stringGame);
                 preparedStatement.setInt(2, gameID);
                 preparedStatement.executeUpdate();
@@ -94,15 +94,15 @@ public class SQLDataAccess implements DataAccess {
 
     @Override
     public void removePlayer(int gameID, ChessGame.TeamColor color) throws DataAccessException {
-        String s_;
+        String littleString;
         if (color.equals(ChessGame.TeamColor.WHITE)) {
-            s_ = "UPDATE game SET whiteUsername = null WHERE gameID = ?";
+            littleString = "UPDATE game SET whiteUsername = null WHERE gameID = ?";
         } else {
-            s_ = "UPDATE game SET blackUsername = null WHERE gameID = ?";
+            littleString = "UPDATE game SET blackUsername = null WHERE gameID = ?";
         }
 
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(s_)) {
+            try (var preparedStatement = conn.prepareStatement(littleString)) {
                 preparedStatement.setInt(1, gameID);
                 preparedStatement.executeUpdate();
             }
@@ -122,10 +122,10 @@ public class SQLDataAccess implements DataAccess {
 
 //        String s = "INSERT INTO game (gameName, chessGame) VALUES (\"" + gameName + "\", \"" + jsonGame + "\");";
 //        executeUpdate(s);
-        String s_ = "INSERT INTO game (gameName, chessGame) VALUES (?, ?)";
+        String littleString = "INSERT INTO game (gameName, chessGame) VALUES (?, ?)";
 
         try (var conn = DatabaseManager.getConnection()) {
-            try (var preparedStatement = conn.prepareStatement(s_)) {
+            try (var preparedStatement = conn.prepareStatement(littleString)) {
                 preparedStatement.setString(1, gameName);
                 preparedStatement.setString(2, jsonGame);
                 preparedStatement.executeUpdate();

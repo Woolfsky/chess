@@ -25,15 +25,6 @@ public class ChessRendering {
         this.perspective = perspective;
     }
 
-    public void renderBoth() {
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        resetColors(out);
-        drawChessBoardBlack(out);
-        out.print("\n");
-        drawChessBoardWhite(out);
-        resetColors(out);
-    }
-
     public void renderPerspective() {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
@@ -104,7 +95,6 @@ public class ChessRendering {
         topRowBlack(out);
         resetColors(out);
     }
-
 
     private static void topRowWhite(PrintStream out) {
         String headers = "   " + " a " + " b " + " c " + " d " + " e " + " f " + " g " + " h " + "   ";
@@ -237,7 +227,7 @@ public class ChessRendering {
 
                 String slotValue = "   ";
                 ChessPosition pos = new ChessPosition(r, 9-c); // c
-                ChessPiece piece = chessBoard.getPiece(pos);
+                ChessPiece piece; piece = chessBoard.getPiece(pos);
                 if (piece != null) {
                     ChessPiece.PieceType type = piece.getPieceType();
                     ChessGame.TeamColor color = piece.getTeamColor();

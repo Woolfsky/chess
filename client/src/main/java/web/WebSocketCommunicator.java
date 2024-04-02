@@ -79,11 +79,8 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.getBasicRemote().sendText(jsonCommand);
     }
 
-
-
     public interface SocketListener {
         void updateRenderGame(ChessGame game);
-        void notify(UserGameCommand gameCommand);
     }
 
     @Override

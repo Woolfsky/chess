@@ -76,10 +76,6 @@ public class WSServer {
         throwable.printStackTrace();
     }
 
-//    @OnWebSocketClose public void onClose(Session session, int statusCode, String reason) {
-//        sessionList.values().removeIf(value -> value.equals(session));
-//    }
-
     public void joinPlayerCommand(JoinPlayerCommand command, Session session) throws IOException, SQLException, DataAccessException, InvalidMoveException {
         try {
             verifyGameExists(command);
@@ -114,7 +110,6 @@ public class WSServer {
         } catch (Exception e) {
             error(session, e.getMessage());
         }
-
     }
 
     public void joinObserverCommand(JoinObserverCommand command, Session session) throws IOException, SQLException, DataAccessException {
@@ -143,7 +138,6 @@ public class WSServer {
         } catch (Exception e) {
             error(session, e.getMessage());
         }
-
     }
 
     public void makeMoveCommand(MakeMoveCommand command, Session session) throws IOException, SQLException, DataAccessException {
@@ -367,6 +361,5 @@ public class WSServer {
         if (gService.getGame(command.getAuthString(), command.getGameID()) == null) {
             throw new InvalidMoveException("Game does not exist");
         }
-
     }
 }

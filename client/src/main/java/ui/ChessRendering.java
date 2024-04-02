@@ -222,10 +222,10 @@ public class ChessRendering {
                 if (backgroundWhite) { setWhiteSquare(out); } else { setBlackSquare(out); }
 
                 if (location != null) {
-                    if (Arrays.asList(r, c).equals(Arrays.asList(p.getRow(), 9 - p.getColumn()))) {
+                    if (Arrays.asList(r, c).equals(Arrays.asList(p.getRow(), 9 - p.getColumn()))) { // 9 - p.getColumn
                         setHighlightPiece(out);
                     }
-                    if (endPoints.contains(Arrays.asList(r, 9 - c))) {
+                    if (endPoints.contains(Arrays.asList(r, 9-c))) { // 9 - c
                         if (backgroundWhite) {
                             setHighlightWhiteTile(out);
                         }
@@ -236,7 +236,7 @@ public class ChessRendering {
                 }
 
                 String slotValue = "   ";
-                ChessPosition pos = new ChessPosition(r, c);
+                ChessPosition pos = new ChessPosition(r, 9-c); // c
                 ChessPiece piece = chessBoard.getPiece(pos);
                 if (piece != null) {
                     ChessPiece.PieceType type = piece.getPieceType();

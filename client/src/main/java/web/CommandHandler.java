@@ -3,6 +3,7 @@ package web;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
@@ -102,7 +103,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Logged out");
                 return "LOGGED_OUT: Not playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Unable to logout");
             }
         }
         if (parameters[0].equals("create")) {
@@ -111,7 +113,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Created game " + parameters[1]);
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Invalid command, follow the format: create <name>");
             }
         }
         if (parameters[0].equals("list")) {
@@ -125,7 +128,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 }
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Invalid command, simply type list");
             }
         }
         if (parameters[0].equals("join")) {
@@ -141,7 +145,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
 
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Invalid join command, follow the format: join <game id> <player color>");
             }
         }
         if (parameters[0].equals("observe")) {
@@ -154,7 +159,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 System.out.println("Observing game " + parameters[1]);
                 return "LOGGED_IN: Observing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Invalid observe command, follow the format: observe <game id>");
             }
         }
         System.out.print("Invalid command. Choose one of the following:\n");
@@ -202,16 +208,26 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
         if (parameters[0].equals("move")) {
             try {
+                if (parameters.length != 2) {
+                    System.out.println("Invalid move, move must be in the following format: move a2a3");
+                    return "LOGGED_IN: Playing";
+                }
                 ChessMove move = parseMove(parameters[1]);
                 ws.makeMove(this.gameID, move, authData.getAuthToken());
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Invalid move");
+                return "LOGGED_IN: Playing";
             }
         }
         if (parameters[0].equals("highlight")) {
-            ChessRendering rendering = new ChessRendering(game, this.color);
-            rendering.highlight(parameters[1]);
+            if (parameters.length != 2) {
+                System.out.println("Invalid command");
+            } else {
+                ChessRendering rendering = new ChessRendering(game, this.color);
+                rendering.highlight(parameters[1]);
+            }
             return "LOGGED_IN: Playing";
         }
         if (parameters[0].equals("redraw")) {
@@ -224,7 +240,9 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 ws.resign(this.gameID, authData.getAuthToken());
                 return "LOGGED_IN: Playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Unable to resign");
+                return "LOGGED_IN: Playing";
             }
         }
         if (parameters[0].equals("leave")) {
@@ -232,7 +250,8 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
                 ws.leave(this.gameID, authData.getAuthToken());
                 return "LOGGED_IN: Not playing";
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+//                System.out.println(e.getMessage());
+                System.out.println("Unable to leave");
             }
 
         }
@@ -260,15 +279,18 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
         }
     }
 
-    public ChessMove parseMove(String rawMove) {
+    public ChessMove parseMove(String rawMove) throws InvalidMoveException {
         if (rawMove.length() == 4) { // this is a no-promotion move... do we need to implement a promotion move? what do they pass in?
             if (validPosition(rawMove.substring(0,2)) && validPosition(rawMove.substring(2,4))) {
                 ChessPosition start = generatePosition(rawMove.substring(0,2));
                 ChessPosition end = generatePosition(rawMove.substring(2,4));
+                if (game.getBoard().getPiece(start) == null) {
+                    throw new InvalidMoveException("Invalid move, that board position is empty");
+                }
                 return new ChessMove(start, end, null);
             }
         } else {
-            // throw some error, invalid move
+            throw new InvalidMoveException("move is too long or too short");
         }
         return null;
     }
@@ -315,7 +337,7 @@ public class CommandHandler implements WebSocketCommunicator.SocketListener {
     @Override
     public void updateRenderGame(ChessGame game) {
         this.game = game;
-        ChessRendering rendering = new ChessRendering(this.game);
+        ChessRendering rendering = new ChessRendering(this.game, color);
         rendering.renderPerspective();
     }
 

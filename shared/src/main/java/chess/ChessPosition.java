@@ -63,6 +63,6 @@ public class ChessPosition {
         map.put(6, "f");
         map.put(7, "g");
         map.put(8, "h");
-        return map.get(row+1) + (col+1);
+        return map.get(col) + (row);
     }
 }

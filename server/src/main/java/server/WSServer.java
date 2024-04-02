@@ -154,6 +154,7 @@ public class WSServer {
             verifyCorrectMover(gameData, g, username);
             verifyGameNotOver(g);
             g.makeMove(command.getMove());
+
             this.gService.setGame(gameData.getGameID(), g);
 
             String authToken = command.getAuthString();

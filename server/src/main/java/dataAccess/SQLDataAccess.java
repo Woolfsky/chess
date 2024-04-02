@@ -311,16 +311,7 @@ public class SQLDataAccess implements DataAccess {
 
     public GameData readGameData(ResultSet rs) throws SQLException {
         if (rs.next()) {
-            Integer gameID = rs.getInt("gameID");
-            String gameName = null;
-            String whiteUsername = null;
-            String blackUsername = null;
-            String chessGame = null;
-            try { gameName = rs.getString("gameName"); } catch (SQLException s) {}
-            try { whiteUsername = rs.getString("whiteUsername"); } catch (SQLException s) {}
-            try { blackUsername = rs.getString("blackUsername"); } catch (SQLException s) {}
-            try { chessGame = rs.getString("chessGame"); } catch (SQLException s) {}
-            return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+            return readGameDataNoNext(rs);
         } else {
             return null;
         }

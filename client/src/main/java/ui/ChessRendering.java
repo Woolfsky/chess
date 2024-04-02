@@ -197,7 +197,8 @@ public class ChessRendering {
 
         if (location != null) {
             p = generatePosition(location);
-            Collection<ChessMove> moves = game.validMoves(p);
+            Collection<ChessMove> moves;
+            moves = game.validMoves(p);
             for (ChessMove m : moves) {
                 endPoints.add(Arrays.asList(m.getEndPosition().getRow(), m.getEndPosition().getColumn()));
             }
@@ -229,15 +230,19 @@ public class ChessRendering {
                 ChessPosition pos = new ChessPosition(r, 9-c); // c
                 ChessPiece piece; piece = chessBoard.getPiece(pos);
                 if (piece != null) {
-                    ChessPiece.PieceType type = piece.getPieceType();
-                    ChessGame.TeamColor color = piece.getTeamColor();
-                    slotValue = getSlotValue(type, color);
+                    ChessPiece.PieceType type;
+                    ChessGame.TeamColor color;
+                    type = piece.getPieceType();
+                    color = piece.getTeamColor();
+                    String value = getSlotValue(type, color);
+                    slotValue = value;
                 }
                 out.print(slotValue);
                 backgroundWhite = !backgroundWhite;
             }
             setOutside(out);
-            out.print(sideLabels[r-1]);
+            String label = sideLabels[r-1];
+            out.print(label);
             resetColors(out);
             out.print("\n");
             setWhiteSquare(out);

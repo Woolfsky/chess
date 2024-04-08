@@ -26,7 +26,7 @@ public class Main {
 
         try {
             handler.facade.delete();
-        } catch (Exception e) {
+        } catch (Exception e) { 
             System.out.println("Failed to clear database: " + e.getMessage());
         }
     }
